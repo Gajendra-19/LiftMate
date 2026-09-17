@@ -1,0 +1,47 @@
+<section
+  class="detail-card w-100 bg-white border rounded-3 p-4 shadow-sm"
+  aria-labelledby="summary-heading"
+>
+  <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-semibold mb-2"
+    >Almost There</span
+  >
+  <h1 id="summary-heading" class="fw-bold font-outfit mb-2">Booking Summary</h1>
+  <p class="text-secondary border-bottom pb-3 mb-4">
+    Review your request details before confirming with {{ provider().name }}.
+  </p>
+
+  <dl class="summary-list row g-3 p-3 bg-light rounded-3 mb-4">
+    <dt class="col-sm-4 text-secondary">Pickup Location</dt>
+    <dd class="col-sm-8 fw-semibold">{{ form().controls.pickup.value }}</dd>
+
+    <dt class="col-sm-4 text-secondary">Delivery Location</dt>
+    <dd class="col-sm-8 fw-semibold">{{ form().controls.delivery.value }}</dd>
+
+    <dt class="col-sm-4 text-secondary">Cargo Description</dt>
+    <dd class="col-sm-8">{{ form().controls.description.value }}</dd>
+
+    <dt class="col-sm-4 text-secondary">Total Weight</dt>
+    <dd class="col-sm-8">{{ form().controls.weight.value }} kg</dd>
+
+    <dt class="col-sm-4 text-secondary">Date & Time</dt>
+    <dd class="col-sm-8">{{ form().controls.date.value }} at {{ form().controls.time.value }}</dd>
+
+    <dt class="col-sm-4 text-secondary">Duration</dt>
+    <dd class="col-sm-8">{{ form().controls.duration.value }} hours</dd>
+
+    <dt class="col-sm-4 text-secondary">Selected Carrier</dt>
+    <dd class="col-sm-8 fw-bold text-primary">{{ provider().name }} ({{ provider().kind }})</dd>
+
+    <dt class="col-sm-4 text-secondary">Estimated Total Price</dt>
+    <dd class="col-sm-8 h4 fw-bold text-success mb-0">₹{{ provider().price }}</dd>
+  </dl>
+
+  <div class="d-flex flex-wrap justify-content-between gap-2 mt-4 pt-2">
+    <button class="btn btn-outline-secondary" type="button" (click)="chooseAnotherCarrier.emit()">
+      Choose Another Carrier
+    </button>
+    <button class="btn btn-primary px-5 py-2 fw-bold" type="button" (click)="confirmBooking.emit()">
+      Confirm & Dispatch Carrier
+    </button>
+  </div>
+</section>

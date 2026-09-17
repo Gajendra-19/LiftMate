@@ -1,0 +1,79 @@
+<nav class="navbar navbar-expand-lg bg-dark navbar-dark sticky-top shadow-sm py-3">
+  <div class="container">
+    <a class="navbar-brand d-flex align-items-center gap-2 fw-bold fs-4 text-white" routerLink="/">
+      <span class="material-icons text-primary fs-3">local_shipping</span>
+      <span>Lift<span class="text-primary">Mate</span></span>
+    </a>
+
+    <button
+      class="navbar-toggler border-0"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarContent"
+      aria-controls="navbarContent"
+      aria-expanded="false"
+      aria-label="Toggle navigation"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <div class="collapse navbar-collapse" id="navbarContent">
+      <ul class="navbar-nav ms-auto align-items-lg-center gap-1 gap-lg-3">
+        <li class="nav-item">
+          <a
+            class="nav-link px-3"
+            routerLink="/"
+            routerLinkActive="active"
+            [routerLinkActiveOptions]="{ exact: true }"
+            >Home</a
+          >
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link px-3" routerLink="/carrier" routerLinkActive="active"
+            >Request Carrier</a
+          >
+        </li>
+
+        <li class="nav-item">
+          <a class="nav-link px-3" routerLink="/provider" routerLinkActive="active"
+            >Provider Workspace</a
+          >
+        </li>
+
+        @if (authService.isLoggedIn()) {
+          <li class="nav-item">
+            <a class="nav-link px-3" routerLink="/dashboard" routerLinkActive="active">
+              <span class="material-icons align-middle fs-5 me-1">dashboard</span>Dashboard
+            </a>
+          </li>
+
+          <li class="nav-item ms-lg-2 d-flex align-items-center gap-2">
+            <span
+              class="badge bg-secondary text-white rounded-pill px-3 py-2 fw-normal d-none d-lg-inline-block"
+            >
+              👤 {{ authService.user()?.name }}
+            </span>
+            <button
+              class="btn btn-outline-light btn-sm px-3 ms-lg-2"
+              type="button"
+              (click)="logout()"
+            >
+              Sign Out
+            </button>
+          </li>
+        } @else {
+          <li class="nav-item ms-lg-2">
+            <button
+              class="btn btn-primary btn-sm px-4 rounded-pill fw-semibold"
+              type="button"
+              routerLink="/login"
+            >
+              Sign In
+            </button>
+          </li>
+        }
+      </ul>
+    </div>
+  </div>
+</nav>

@@ -1,0 +1,275 @@
+<main class="provider-dashboard container py-5">
+  @if (!profileRegistered()) {
+    <section class="onboarding-panel mb-5" aria-labelledby="join-heading">
+      <div class="onboarding-copy">
+        <p class="eyebrow mb-2">Earn with LiftMate</p>
+        <h1 id="join-heading">How will you carry loads?</h1>
+        <p class="text-secondary">
+          Choose your LiftMate profile. Individual carriers and teams receive the same customer
+          requests and can accept or reject each job.
+        </p>
+      </div>
+      @if (onboardingStep() === 'choose') {
+        <div class="profile-choice-grid" aria-label="Choose LiftMate type">
+          <button class="profile-choice" type="button" (click)="chooseProfileKind('Individual')">
+            <span class="material-icons">person</span><strong>Individual LiftMate</strong
+            ><small>For one carrier with their own equipment and availability.</small
+            ><span class="choice-action">Register as an individual</span>
+          </button>
+          <button class="profile-choice" type="button" (click)="chooseProfileKind('Team')">
+            <span class="material-icons">groups</span><strong>Team LiftMate</strong
+            ><small>For a crew of 2 to 5 people working together on larger loads.</small
+            ><span class="choice-action">Register a team</span>
+          </button>
+        </div>
+      } @else {
+        <p class="selected-type">
+          <button class="btn btn-link px-0" type="button" (click)="onboardingStep.set('choose')">
+            ← Change LiftMate type
+          </button>
+          · {{ profileKind }} profile
+        </p>
+        <form class="profile-form" (ngSubmit)="registerAsLiftMate()">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label for="profile-name">Full name</label
+              ><input
+                id="profile-name"
+                class="form-control"
+                name="profileName"
+                [(ngModel)]="profileName"
+                required
+                placeholder="e.g. Rahul Kumar"
+              />
+            </div>
+            <div class="col-md-6">
+              <label for="profile-phone">Phone number</label
+              ><input
+                id="profile-phone"
+                class="form-control"
+                name="profilePhone"
+                [(ngModel)]="profilePhone"
+                required
+                placeholder="e.g. 98765 43210"
+              />
+            </div>
+            @if (profileKind === 'Team') {
+              <div class="col-md-6">
+                <label for="team-name">Team name</label
+                ><input
+                  id="team-name"
+                  class="form-control"
+                  name="teamName"
+                  [(ngModel)]="teamName"
+                  required
+                  placeholder="e.g. Mumbai Load Crew"
+                />
+              </div>
+              <div class="col-md-6">
+                <label for="team-size">Team size</label
+                ><input
+                  id="team-size"
+                  class="form-control"
+                  type="number"
+                  min="2"
+                  max="5"
+                  name="teamSize"
+                  [(ngModel)]="teamSize"
+                  required
+                  placeholder="2 to 5"
+                /><small class="form-hint">Your team must have between 2 and 5 LiftMates.</small>
+              </div>
+            }
+            <div class="col-md-6">
+              <label for="service-area">Service area</label
+              ><input
+                id="service-area"
+                class="form-control"
+                name="serviceArea"
+                [(ngModel)]="serviceArea"
+                required
+                placeholder="e.g. Mumbai and Thane"
+              />
+            </div>
+            <div class="col-md-6">
+              <label for="equipment">Equipment or vehicle</label
+              ><input
+                id="equipment"
+                class="form-control"
+                name="equipment"
+                [(ngModel)]="equipment"
+                required
+                placeholder="e.g. Hydraulic trolley, straps"
+              />
+            </div>
+            <div class="col-md-6">
+              <label for="capacity">Maximum load capacity (kg)</label
+              ><input
+                id="capacity"
+                class="form-control"
+                type="number"
+                min="1"
+                name="capacity"
+                [(ngModel)]="capacity"
+                required
+                placeholder="e.g. 500"
+              />
+            </div>
+            <div class="col-md-6">
+              <label for="rate">Starting rate per job (₹)</label
+              ><input
+                id="rate"
+                class="form-control"
+                type="number"
+                min="1"
+                name="rate"
+                [(ngModel)]="rate"
+                required
+                placeholder="e.g. 650"
+              />
+            </div>
+          </div>
+          <button class="btn btn-primary mt-4" type="submit">Create my LiftMate profile</button>
+        </form>
+      }
+    </section>
+  } @else {
+    <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
+      <div>
+        <p class="eyebrow mb-2">{{ profile()?.kind }} LiftMate profile</p>
+        <h1 class="fw-bold mb-1">
+          Welcome, {{ profile()?.kind === 'Team' ? profile()?.teamName : profile()?.name }}
+        </h1>
+        <p class="text-secondary mb-0">
+          Review customer requests and decide which loads you want to carry.
+        </p>
+      </div>
+      <span class="online-pill">● Available for jobs</span>
+    </div>
+    <section class="profile-strip mb-5">
+      <div>
+        <small>Contact</small><strong>{{ profile()?.name }} · {{ profile()?.phone }}</strong>
+      </div>
+      @if (profile()?.kind === 'Team') {
+        <div>
+          <small>Team size</small><strong>{{ profile()?.teamSize }} people</strong>
+        </div>
+      }
+      <div>
+        <small>Service area</small><strong>{{ profile()?.serviceArea }}</strong>
+      </div>
+      <div>
+        <small>Equipment</small><strong>{{ profile()?.equipment }}</strong>
+      </div>
+      <div>
+        <small>Capacity</small><strong>{{ profile()?.capacity }} kg</strong>
+      </div>
+      <div>
+        <small>Your starting rate</small><strong>₹{{ profile()?.rate }}</strong>
+      </div>
+    </section>
+    <section class="stats-grid mb-5" aria-label="LiftMate overview">
+      <article>
+        <span>New requests</span><strong>{{ requestState() === 'New request' ? 1 : 0 }}</strong>
+      </article>
+      <article><span>Accepted jobs</span><strong>3</strong></article>
+      <article><span>Completed jobs</span><strong>124</strong></article>
+      <article>
+        <span>This month</span><strong>₹{{ earnings }}</strong>
+      </article>
+      <article>
+        <span>Rating</span><strong>★ {{ rating }}</strong>
+      </article>
+    </section>
+    <div class="row g-4">
+      <section class="col-lg-7">
+        <div class="dashboard-panel p-4 h-100">
+          <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+              <p class="eyebrow mb-1">Customer request</p>
+              <h2 class="h4 mb-0">Someone wants to hire you</h2>
+            </div>
+            <span class="status-pill">{{ requestState() }}</span>
+          </div>
+          <div class="request-details">
+            <div>
+              <small>Customer</small><strong>{{ request().customer }}</strong>
+            </div>
+            <div>
+              <small>Load</small><strong>{{ request().load }} · {{ request().weight }} kg</strong>
+            </div>
+            <div>
+              <small>Pickup</small><strong>{{ request().pickup }}</strong>
+            </div>
+            <div>
+              <small>Drop</small><strong>{{ request().drop }}</strong>
+            </div>
+            <div>
+              <small>Schedule</small
+              ><strong>{{ request().schedule }} · {{ request().duration }} hours</strong>
+            </div>
+            <div>
+              <small>Offered payment</small><strong>₹{{ request().payment }}</strong>
+            </div>
+          </div>
+          @if (requestState() === 'New request') {
+            <div class="d-flex gap-2 mt-4">
+              <button class="btn btn-primary" type="button" (click)="acceptRequest()">
+                Accept request</button
+              ><button class="btn btn-outline-danger" type="button" (click)="rejectRequest()">
+                Reject request
+              </button>
+            </div>
+          } @else if (requestState() === 'Rejected') {
+            <div class="alert alert-secondary mt-4">
+              You rejected this request.
+              <button class="btn btn-link p-0" type="button" (click)="resetRequest()">
+                Show request again
+              </button>
+            </div>
+          } @else {
+            <div class="alert alert-success mt-4">
+              You accepted this job. Keep the customer updated from the active job panel.
+            </div>
+          }
+        </div>
+      </section>
+      <section class="col-lg-5">
+        <div class="dashboard-panel p-4 h-100">
+          <p class="eyebrow mb-1">Accepted job</p>
+          <h2 class="h4 mb-4">Job progress</h2>
+          @if (requestState() === 'Accepted') {
+            <div class="job-tracker">
+              @for (status of statuses; track status; let index = $index) {
+                <div class="job-step" [class.done]="index <= statuses.indexOf(activeStatus())">
+                  <span>{{ index + 1 }}</span>
+                  <div>
+                    <strong>{{ status }}</strong>
+                    @if (status === activeStatus()) {
+                      <small>Current status</small>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+            <button
+              class="btn btn-primary w-100 mt-4"
+              type="button"
+              [disabled]="activeStatus() === 'Completed'"
+              (click)="advanceJob()"
+            >
+              {{ activeStatus() === 'Completed' ? 'Job completed' : 'Update job status' }}
+            </button>
+          } @else {
+            <div class="empty-state text-center py-5">
+              <span class="material-icons text-secondary fs-1">local_shipping</span>
+              <p class="text-secondary mt-3">
+                Accept a customer request to start tracking the job.
+              </p>
+            </div>
+          }
+        </div>
+      </section>
+    </div>
+  }
+</main>

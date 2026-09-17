@@ -1,0 +1,56 @@
+<section
+  class="detail-card w-100 max-w-600 bg-white border rounded-3 p-4 shadow-sm mx-auto"
+  aria-labelledby="rating-heading"
+>
+  <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill fw-semibold mb-2"
+    >Job Completed</span
+  >
+  <h1 id="rating-heading" class="fw-bold font-outfit mb-1">Rate Your Carrier</h1>
+  <p class="text-secondary mb-4">
+    Your feedback helps LiftMate maintain top heavy-lifting quality standards.
+  </p>
+
+  @if (feedbackSubmitted()) {
+    <div class="alert alert-success d-flex align-items-center gap-2" role="status">
+      <span class="material-icons">task_alt</span>
+      <span
+        >Thank you! Your feedback for <strong>{{ provider().name }}</strong> has been
+        recorded.</span
+      >
+    </div>
+  } @else {
+    <div class="star-picker d-flex justify-content-center gap-2 my-4" aria-label="Rating">
+      @for (star of [1, 2, 3, 4, 5]; track star) {
+        <button
+          type="button"
+          class="btn btn-outline-warning fs-3 p-2"
+          [class.active]="star <= rating()"
+          (click)="setRating.emit(star)"
+          [attr.aria-label]="star + ' stars'"
+        >
+          ★
+        </button>
+      }
+    </div>
+
+    <div class="mb-3">
+      <label class="form-label fw-semibold" for="review">Written Review</label>
+      <textarea
+        id="review"
+        class="form-control"
+        rows="4"
+        placeholder="Tell us about punctuality, equipment handling, and overall experience..."
+        (input)="updateReview.emit($event)"
+      ></textarea>
+    </div>
+
+    <button
+      class="btn btn-primary w-100 py-2 fw-bold"
+      type="button"
+      [disabled]="rating() === 0 || !review().trim()"
+      (click)="submitFeedback.emit()"
+    >
+      Submit Review
+    </button>
+  }
+</section>

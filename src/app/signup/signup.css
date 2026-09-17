@@ -1,0 +1,234 @@
+/* Signup Page Styles */
+
+.signup-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, #e8e4f3 0%, #f5f3fa 100%);
+  padding: 20px;
+}
+
+.signup-box {
+  background-color: #ffffff;
+  border-radius: 10px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  padding: 40px;
+  width: 100%;
+  max-width: 450px;
+}
+
+.signup-box h2 {
+  font-size: 28px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+.signup-subtitle {
+  font-size: 14px;
+  color: #999;
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+/* Form Group */
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 13px;
+  font-weight: bold;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 15px;
+  font-size: 14px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  background-color: #fafafa;
+  transition: border-color 0.3s;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #4d44e3;
+  background-color: #ffffff;
+}
+
+.form-group input::placeholder {
+  color: #bbb;
+}
+
+.form-group input.ng-invalid.ng-touched,
+.form-group input.ng-invalid.ng-dirty {
+  border-color: #dc3545 !important;
+}
+
+/* Password Wrapper */
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  width: 100%;
+  padding-right: 45px;
+}
+
+.eye-btn {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+  color: #666;
+}
+
+.eye-btn:hover {
+  color: #4d44e3;
+}
+
+/* Error Messages */
+.error-message {
+  display: block;
+  font-size: 12px;
+  color: #dc3545;
+  margin-top: 6px;
+}
+
+.error-message div {
+  margin: 2px 0;
+}
+
+.error-box {
+  background-color: #f8d7da;
+  border: 1px solid #f5c6cb;
+  color: #721c24;
+  padding: 12px 15px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+
+/* Terms Checkbox */
+.terms-check {
+  display: flex;
+  align-items: flex-start;
+  font-size: 12px;
+  color: #666;
+  margin-bottom: 25px;
+  cursor: pointer;
+}
+
+.terms-check input[type='checkbox'] {
+  width: auto;
+  margin-right: 8px;
+  margin-top: 2px;
+  cursor: pointer;
+  accent-color: #4d44e3;
+}
+
+.terms-link {
+  color: #4d44e3;
+  text-decoration: none;
+  transition: color 0.3s;
+}
+
+.terms-link:hover {
+  text-decoration: underline;
+}
+
+/* Sign Up Button */
+.btn-signup {
+  width: 100%;
+  padding: 12px 20px;
+  font-size: 15px;
+  font-weight: bold;
+  background-color: #4d44e3;
+  color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+  margin-bottom: 20px;
+}
+
+.btn-signup:hover:not(:disabled) {
+  background-color: #3a31b3;
+}
+
+.btn-signup:disabled {
+  background-color: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-signup:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  margin: 20px 0;
+  color: #ccc;
+  font-size: 13px;
+}
+
+.divider::before,
+.divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background-color: #ddd;
+}
+
+.divider span {
+  margin: 0 12px;
+  color: #999;
+}
+
+/* Login Text */
+.login-text {
+  text-align: center;
+  font-size: 13px;
+  color: #666;
+  margin: 0;
+}
+
+.login-text a {
+  color: #4d44e3;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s;
+}
+
+.login-text a:hover {
+  color: #3a31b3;
+  text-decoration: underline;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .signup-box {
+    padding: 30px 20px;
+  }
+
+  .signup-box h2 {
+    font-size: 24px;
+  }
+
+  .form-group {
+    margin-bottom: 15px;
+  }
+}

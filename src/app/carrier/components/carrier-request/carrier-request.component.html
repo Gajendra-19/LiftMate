@@ -1,0 +1,376 @@
+<!-- Progress steps -->
+<div
+  class="d-flex align-items-center w-100 step-steps mb-4"
+  style="max-width: 700px"
+  aria-label="Booking progress"
+>
+  <div class="d-flex flex-column align-items-center step-item">
+    <div class="step-circle" [class.active]="requestStep() >= 1">1</div>
+    <small
+      [class.text-primary]="requestStep() === 1"
+      [class.fw-bold]="requestStep() === 1"
+      class="mt-2"
+      >Load Details</small
+    >
+  </div>
+  <div class="step-connector" [class.active]="requestStep() >= 2"></div>
+  <div class="d-flex flex-column align-items-center step-item">
+    <div
+      class="step-circle"
+      [class.active]="requestStep() >= 2"
+      [class.inactive]="requestStep() < 2"
+    >
+      2
+    </div>
+    <small
+      [class.text-primary]="requestStep() === 2"
+      [class.fw-bold]="requestStep() === 2"
+      class="text-secondary mt-2"
+      >Location</small
+    >
+  </div>
+  <div class="step-connector" [class.active]="requestStep() >= 3"></div>
+  <div class="d-flex flex-column align-items-center step-item">
+    <div
+      class="step-circle"
+      [class.active]="requestStep() >= 3"
+      [class.inactive]="requestStep() < 3"
+    >
+      3
+    </div>
+    <small
+      [class.text-primary]="requestStep() === 3"
+      [class.fw-bold]="requestStep() === 3"
+      class="text-secondary mt-2"
+      >Confirm</small
+    >
+  </div>
+</div>
+
+<!-- Form card -->
+<div class="card shadow-sm border w-100 rounded-3" style="max-width: 700px">
+  <div class="card-body p-4 p-md-5">
+    <h1 class="h3 fw-bold mb-1 font-outfit">{{ stepLabel() }}</h1>
+    <p class="text-secondary border-bottom pb-3 mb-4">
+      @if (requestStep() === 1) {
+        Enter specifications of your cargo to ensure accurate carrier matching.
+      } @else if (requestStep() === 2) {
+        Tell us where the load will be collected and delivered.
+      } @else {
+        Review the details below and confirm your load request.
+      }
+    </p>
+
+    @if (requestStep() < 3) {
+      <form [formGroup]="form()" class="d-flex flex-column gap-4" (ngSubmit)="nextStep.emit()">
+        @if (requestStep() === 1) {
+          <div>
+            <label class="form-label fw-semibold" for="category"
+              >Cargo Category <span class="text-danger">*</span></label
+            >
+            <select
+              class="form-select"
+              id="category"
+              formControlName="category"
+              [class.is-invalid]="
+                form().controls.category.invalid && form().controls.category.touched
+              "
+            >
+              <option disabled value="">Select equipment type</option>
+              <option value="flatbed">Flatbed</option>
+              <option value="dry_van">Dry Van</option>
+              <option value="refrigerated">Refrigerated</option>
+              <option value="heavy_haul">Heavy Haul / Specialized</option>
+            </select>
+            @if (form().controls.category.invalid && form().controls.category.touched) {
+              <div class="invalid-feedback d-block">Cargo category is required.</div>
+            }
+          </div>
+
+          <div>
+            <label class="form-label fw-semibold" for="description"
+              >Description <span class="text-danger">*</span></label
+            >
+            <textarea
+              class="form-control"
+              id="description"
+              formControlName="description"
+              rows="3"
+              placeholder="Briefly describe cargo, handling instructions, or dimensions..."
+              [class.is-invalid]="
+                form().controls.description.invalid && form().controls.description.touched
+              "
+            ></textarea>
+            @if (form().controls.description.invalid && form().controls.description.touched) {
+              <div class="invalid-feedback d-block">Cargo description is required.</div>
+            }
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-semibold" for="weight"
+                >Total Weight (kg) <span class="text-danger">*</span></label
+              >
+              <input
+                type="number"
+                class="form-control"
+                id="weight"
+                formControlName="weight"
+                placeholder="e.g. 450"
+                [class.is-invalid]="
+                  form().controls.weight.invalid && form().controls.weight.touched
+                "
+              />
+              @if (form().controls.weight.invalid && form().controls.weight.touched) {
+                <div class="invalid-feedback d-block">Valid weight in kg is required (min 1).</div>
+              }
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-semibold" for="items"
+                >Number of Units <span class="text-danger">*</span></label
+              >
+              <input
+                type="number"
+                class="form-control"
+                id="items"
+                formControlName="items"
+                placeholder="e.g. 6 pallets"
+                [class.is-invalid]="form().controls.items.invalid && form().controls.items.touched"
+              />
+              @if (form().controls.items.invalid && form().controls.items.touched) {
+                <div class="invalid-feedback d-block">Number of units is required (min 1).</div>
+              }
+            </div>
+          </div>
+
+          <div>
+            <label class="form-label fw-semibold" for="preferences"
+              >Special Handling Preferences</label
+            >
+            <input
+              class="form-control"
+              id="preferences"
+              formControlName="preferences"
+              placeholder="e.g. Careful handling, hydraulic trolley required"
+            />
+          </div>
+
+          <div>
+            <label class="form-label fw-semibold">Documentation / Photos</label>
+            <label
+              class="dropzone p-4 text-center d-block rounded-3 border-dashed"
+              for="load-files"
+            >
+              <span class="material-icons text-primary fs-1">cloud_upload</span>
+              <p class="mb-0">
+                <span class="text-primary fw-semibold">Click to upload</span> or drag and drop
+              </p>
+              <small class="text-secondary">SVG, PNG, JPG or PDF (max 10MB)</small>
+              <input
+                class="visually-hidden"
+                id="load-files"
+                type="file"
+                accept="image/png,image/jpeg,image/svg+xml,application/pdf"
+                multiple
+                (change)="addFiles.emit($event)"
+              />
+            </label>
+            @if (selectedFiles().length > 0) {
+              <div class="selected-files mt-3 d-flex flex-wrap gap-2" aria-label="Selected files">
+                @for (selectedFile of selectedFiles(); track $index; let index = $index) {
+                  <article class="selected-file border p-2 rounded d-flex align-items-center gap-2">
+                    @if (selectedFile.previewUrl) {
+                      <img
+                        class="file-preview rounded"
+                        [src]="selectedFile.previewUrl"
+                        [alt]="'Preview of ' + selectedFile.file.name"
+                        style="width: 32px; height: 32px; object-fit: cover"
+                      />
+                    } @else {
+                      <span class="material-icons text-danger">picture_as_pdf</span>
+                    }
+                    <span class="file-name small text-truncate" style="max-width: 150px">{{
+                      selectedFile.file.name
+                    }}</span>
+                    <button
+                      class="btn btn-link btn-sm text-danger p-0 border-0"
+                      type="button"
+                      (click)="removeFile.emit(index)"
+                    >
+                      <span class="material-icons fs-6">close</span>
+                    </button>
+                  </article>
+                }
+              </div>
+            }
+          </div>
+        }
+
+        @if (requestStep() === 2) {
+          <div>
+            <label class="form-label fw-semibold" for="pickup"
+              >Pickup Location <span class="text-danger">*</span></label
+            >
+            <input
+              class="form-control"
+              id="pickup"
+              formControlName="pickup"
+              placeholder="Street, city, area or landmark"
+              [class.is-invalid]="form().controls.pickup.invalid && form().controls.pickup.touched"
+            />
+            @if (form().controls.pickup.invalid && form().controls.pickup.touched) {
+              <div class="invalid-feedback d-block">Pickup location is required.</div>
+            }
+          </div>
+          <div>
+            <label class="form-label fw-semibold" for="delivery"
+              >Delivery Location <span class="text-danger">*</span></label
+            >
+            <input
+              class="form-control"
+              id="delivery"
+              formControlName="delivery"
+              placeholder="Street, city, area or landmark"
+              [class.is-invalid]="
+                form().controls.delivery.invalid && form().controls.delivery.touched
+              "
+            />
+            @if (form().controls.delivery.invalid && form().controls.delivery.touched) {
+              <div class="invalid-feedback d-block">Delivery location is required.</div>
+            }
+          </div>
+          <div class="row g-3">
+            <div class="col-md-4">
+              <label class="form-label fw-semibold" for="date"
+                >Date <span class="text-danger">*</span></label
+              >
+              <input
+                type="date"
+                class="form-control"
+                id="date"
+                formControlName="date"
+                [class.is-invalid]="form().controls.date.invalid && form().controls.date.touched"
+              />
+              @if (form().controls.date.invalid && form().controls.date.touched) {
+                <div class="invalid-feedback d-block">Date is required.</div>
+              }
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold" for="time"
+                >Time <span class="text-danger">*</span></label
+              >
+              <input
+                type="time"
+                class="form-control"
+                id="time"
+                formControlName="time"
+                [class.is-invalid]="form().controls.time.invalid && form().controls.time.touched"
+              />
+              @if (form().controls.time.invalid && form().controls.time.touched) {
+                <div class="invalid-feedback d-block">Time is required.</div>
+              }
+            </div>
+            <div class="col-md-4">
+              <label class="form-label fw-semibold" for="duration"
+                >Duration (hours) <span class="text-danger">*</span></label
+              >
+              <input
+                type="number"
+                min="1"
+                class="form-control"
+                id="duration"
+                formControlName="duration"
+                placeholder="e.g. 3"
+                [class.is-invalid]="
+                  form().controls.duration.invalid && form().controls.duration.touched
+                "
+              />
+              @if (form().controls.duration.invalid && form().controls.duration.touched) {
+                <div class="invalid-feedback d-block">Duration is required.</div>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="d-flex justify-content-between align-items-center mt-3">
+          @if (requestStep() === 2) {
+            <button type="button" class="btn btn-outline-secondary" (click)="previousStep.emit()">
+              Back
+            </button>
+          } @else {
+            <div></div>
+          }
+          <button
+            type="submit"
+            class="btn btn-primary px-4 py-2 d-flex align-items-center gap-2 fw-semibold"
+          >
+            {{ requestStep() === 1 ? 'Next: Choose Location' : 'Next: Review Details' }}
+            <span class="material-icons">arrow_forward</span>
+          </button>
+        </div>
+      </form>
+    }
+
+    @if (requestStep() === 3) {
+      <section class="confirmation-panel" aria-labelledby="confirmation-heading">
+        <h2 id="confirmation-heading" class="h5 fw-bold mb-4">Please confirm your load details</h2>
+        <dl class="row g-3 mb-4 p-3 bg-light rounded-3">
+          <dt class="col-sm-5 text-secondary">Cargo Category</dt>
+          <dd class="col-sm-7 fw-semibold text-capitalize">
+            {{ form().controls.category.value }}
+          </dd>
+
+          <dt class="col-sm-5 text-secondary">Description</dt>
+          <dd class="col-sm-7">{{ form().controls.description.value }}</dd>
+
+          <dt class="col-sm-5 text-secondary">Total Weight</dt>
+          <dd class="col-sm-7">{{ form().controls.weight.value }} kg</dd>
+
+          <dt class="col-sm-5 text-secondary">Number of Units</dt>
+          <dd class="col-sm-7">{{ form().controls.items.value }} units</dd>
+
+          <dt class="col-sm-5 text-secondary">Pickup Location</dt>
+          <dd class="col-sm-7">{{ form().controls.pickup.value }}</dd>
+
+          <dt class="col-sm-5 text-secondary">Delivery Location</dt>
+          <dd class="col-sm-7">{{ form().controls.delivery.value }}</dd>
+
+          <dt class="col-sm-5 text-secondary">Schedule</dt>
+          <dd class="col-sm-7">
+            {{ form().controls.date.value }} at {{ form().controls.time.value }} ({{
+              form().controls.duration.value
+            }}
+            hrs)
+          </dd>
+        </dl>
+
+        @if (submitted()) {
+          <div class="alert alert-success d-flex align-items-center gap-2" role="status">
+            <span class="material-icons">check_circle</span>
+            <span>Your load request is verified. Finding LiftMates near you...</span>
+          </div>
+        }
+
+        <div class="d-flex justify-content-between gap-3 mt-4">
+          <button type="button" class="btn btn-outline-secondary" (click)="previousStep.emit()">
+            Back
+          </button>
+          <button
+            type="button"
+            class="btn btn-primary px-4 fw-semibold d-flex align-items-center gap-2"
+            (click)="confirmBooking.emit()"
+            [disabled]="submitted() || loading()"
+          >
+            @if (loading()) {
+              <span class="spinner-border spinner-border-sm" role="status"></span>
+              <span>Searching Carriers...</span>
+            } @else {
+              <span>Find LiftMates</span>
+              <span class="material-icons">search</span>
+            }
+          </button>
+        </div>
+      </section>
+    }
+  </div>
+</div>

@@ -1,0 +1,89 @@
+<section
+  class="detail-card w-100 bg-white border rounded-3 p-4 shadow-sm"
+  aria-labelledby="status-heading"
+>
+  <div
+    class="d-flex flex-wrap justify-content-between gap-3 align-items-start pb-3 border-bottom mb-4"
+  >
+    <div>
+      <span class="badge bg-primary px-3 py-1 rounded-pill mb-2">Active Booking</span>
+      <h1 id="status-heading" class="fw-bold font-outfit mb-1">Live Load Tracker</h1>
+      <p class="text-secondary mb-0">
+        Carrier: <strong>{{ provider().name }}</strong> · Estimated Price:
+        <strong class="text-dark">₹{{ provider().price }}</strong>
+      </p>
+    </div>
+    <span class="badge bg-info text-dark fs-6 px-3 py-2 rounded-pill">{{ bookingStatus() }}</span>
+  </div>
+
+  <!-- Live Status Timeline -->
+  <div
+    class="status-tracker my-4 d-flex flex-wrap justify-content-between gap-2 p-3 bg-light rounded-3"
+  >
+    @for (status of statusList; track status; let index = $index) {
+      <div
+        class="status-item text-center flex-grow-1"
+        [class.done]="index <= statusList.indexOf(bookingStatus())"
+      >
+        <div
+          class="status-badge mx-auto mb-1 rounded-circle fw-bold d-flex align-items-center justify-content-center"
+          style="width: 36px; height: 36px"
+        >
+          {{ index + 1 }}
+        </div>
+        <small class="d-block fw-semibold">{{ status }}</small>
+      </div>
+    }
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-md-6">
+      <div class="p-3 border rounded">
+        <small class="text-secondary d-block">Pickup Address</small
+        ><strong>{{ form().controls.pickup.value }}</strong>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="p-3 border rounded">
+        <small class="text-secondary d-block">Delivery Address</small
+        ><strong>{{ form().controls.delivery.value }}</strong>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="p-3 border rounded">
+        <small class="text-secondary d-block">Scheduled Time</small
+        ><strong>{{ form().controls.date.value }} at {{ form().controls.time.value }}</strong>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="p-3 border rounded">
+        <small class="text-secondary d-block">Cargo Specs</small
+        ><strong
+          >{{ form().controls.description.value }} ({{ form().controls.weight.value }} kg)</strong
+        >
+      </div>
+    </div>
+  </div>
+
+  <div class="d-flex flex-wrap gap-2 mt-4 pt-2 border-top">
+    @if (bookingStatus() === 'Request Sent') {
+      <button class="btn btn-outline-danger" type="button" (click)="cancelBooking.emit()">
+        Cancel Request
+      </button>
+    }
+    @if (bookingStatus() !== 'Completed') {
+      <button class="btn btn-primary ms-auto" type="button" (click)="advanceStatus.emit()">
+        Simulate Status Update →
+      </button>
+    }
+    @if (bookingStatus() === 'Completed') {
+      <button
+        class="btn btn-success ms-auto px-4 fw-bold"
+        type="button"
+        (click)="rateCarrier.emit()"
+      >
+        Rate & Review Carrier
+      </button>
+    }
+  </div>
+</section>

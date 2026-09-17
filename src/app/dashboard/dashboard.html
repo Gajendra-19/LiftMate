@@ -1,0 +1,182 @@
+<main class="dashboard-shell">
+  <aside class="dashboard-sidebar" aria-label="Dashboard navigation">
+    <p class="sidebar-label">Workspace</p>
+    <div class="profile-mini">
+      <div class="profile-avatar">{{ authService.user()?.name?.slice(0, 1) || 'U' }}</div>
+      <div>
+        <strong>{{ authService.user()?.name || 'Customer' }}</strong>
+        <small>Customer account</small>
+      </div>
+    </div>
+    <button
+      class="mobile-menu-toggle"
+      type="button"
+      (click)="toggleMenu()"
+      [attr.aria-expanded]="menuOpen()"
+      aria-controls="dashboard-menu"
+    >
+      <span class="material-icons">menu</span>{{ menuOpen() ? 'Close menu' : 'Menu' }}
+    </button>
+    <nav
+      class="side-nav"
+      id="dashboard-menu"
+      [class.mobile-open]="menuOpen()"
+      aria-label="Dashboard navigation"
+    >
+      <a
+        routerLink="/dashboard/provider"
+        routerLinkActive="active"
+        [routerLinkActiveOptions]="{ exact: true }"
+      >
+        <span class="material-icons">groups</span>Become a LiftMate
+      </a>
+      <button
+        type="button"
+        [class.active]="section() === 'overview' && !childRouteActive()"
+        (click)="setSection('overview')"
+      >
+        <span class="material-icons">local_shipping</span>Request LiftMate
+      </button>
+      <button
+        type="button"
+        [class.active]="section() === 'history'"
+        (click)="setSection('history')"
+      >
+        <span class="material-icons">history</span>History
+      </button>
+      <button
+        type="button"
+        [class.active]="section() === 'settings'"
+        (click)="setSection('settings')"
+      >
+        <span class="material-icons">settings</span>Settings
+      </button>
+    </nav>
+    <button class="signout-link" type="button" (click)="logout()">
+      <span class="material-icons">logout</span>Sign Out
+    </button>
+  </aside>
+
+  <section class="dashboard-content">
+    @if (childRouteActive()) {
+      <router-outlet></router-outlet>
+    } @else {
+      @if (section() === 'overview') {
+        <div class="content-heading">
+          <div>
+            <p class="eyebrow">Customer dashboard</p>
+            <h1>Move your next load with confidence.</h1>
+            <p class="text-secondary">
+              Find reliable lifting help, manage requests, and keep every booking in one place.
+            </p>
+          </div>
+          <button class="btn btn-primary" type="button" (click)="continueRequest()">
+            Request a LiftMate
+          </button>
+        </div>
+        @if (hasPendingRequest) {
+          <div class="pending-banner">
+            <div>
+              <strong>Your request is ready to continue</strong>
+              <p class="mb-0 text-secondary">You selected a LiftMate before signing in.</p>
+            </div>
+            <button class="btn btn-primary" type="button" (click)="continueRequest()">
+              Continue request
+            </button>
+          </div>
+        }
+        <div class="dashboard-grid">
+          <article class="metric-card">
+            <span>Active requests</span>
+            <strong>{{ hasPendingRequest ? 1 : 0 }}</strong>
+            <small>Requests awaiting a provider</small>
+          </article>
+          <article class="metric-card">
+            <span>Completed jobs</span>
+            <strong>8</strong>
+            <small>Your LiftMate history</small>
+          </article>
+          <article class="metric-card">
+            <span>Saved providers</span>
+            <strong>3</strong>
+            <small>Trusted for your next move</small>
+          </article>
+        </div>
+        <section class="recent-panel">
+          <div class="d-flex justify-content-between align-items-center">
+            <div>
+              <p class="eyebrow mb-1">Recent activity</p>
+              <h2 class="h4 mb-0">Your LiftMate activity</h2>
+            </div>
+            <button class="btn btn-link" type="button" (click)="setSection('history')">
+              View history
+            </button>
+          </div>
+          <div class="activity-row">
+            <span class="activity-icon material-icons">check_circle</span>
+            <div>
+              <strong>Office furniture delivery</strong>
+              <small>Completed · Andheri East to Powai</small>
+            </div>
+            <span class="activity-price">₹450</span>
+          </div>
+        </section>
+      } @else if (section() === 'history') {
+        <div class="content-heading">
+          <div>
+            <p class="eyebrow">Your activity</p>
+            <h1>Booking history</h1>
+            <p class="text-secondary">Review your past LiftMate requests and payments.</p>
+          </div>
+          <button class="btn btn-primary" type="button" (click)="continueRequest()">
+            Request a LiftMate
+          </button>
+        </div>
+        <section class="recent-panel">
+          <div class="activity-row">
+            <span class="activity-icon material-icons">check_circle</span>
+            <div>
+              <strong>Office furniture delivery</strong>
+              <small>Rahul Kumar · Completed · 18 Sep 2026</small>
+            </div>
+            <span class="activity-price">₹450</span>
+          </div>
+          <div class="activity-row">
+            <span class="activity-icon material-icons">check_circle</span>
+            <div>
+              <strong>Home appliance move</strong>
+              <small>Sameer Logistics · Completed · 04 Sep 2026</small>
+            </div>
+            <span class="activity-price">₹1,450</span>
+          </div>
+        </section>
+      } @else {
+        <div class="content-heading">
+          <div>
+            <p class="eyebrow">Account</p>
+            <h1>Settings</h1>
+            <p class="text-secondary">Manage your customer profile and preferences.</p>
+          </div>
+        </div>
+        <section class="settings-panel">
+          <label>
+            Full name
+            <input class="form-control" [value]="authService.user()?.name" readonly />
+          </label>
+          <label>
+            Email address
+            <input class="form-control" [value]="authService.user()?.email" readonly />
+          </label>
+          <label class="form-check-label">
+            <input class="form-check-input" type="checkbox" checked />
+            Send booking updates by email
+          </label>
+          <label class="form-check-label">
+            <input class="form-check-input" type="checkbox" checked />
+            Send status updates by SMS
+          </label>
+        </section>
+      }
+    }
+  </section>
+</main>

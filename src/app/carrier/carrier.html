@@ -1,0 +1,86 @@
+<div class="carrier-container py-4">
+  <main class="container d-flex flex-column align-items-center">
+    @switch (view()) {
+      @case ('request') {
+        <app-carrier-request
+          [form]="form"
+          [requestStep]="requestStep()"
+          [submitted]="submitted()"
+          [loading]="loading()"
+          [selectedFiles]="selectedFiles()"
+          (nextStep)="nextStep()"
+          (previousStep)="previousStep()"
+          (confirmBooking)="confirmBooking()"
+          (addFiles)="addFiles($event)"
+          (removeFile)="removeFile($event)"
+        ></app-carrier-request>
+      }
+
+      @case ('matching') {
+        <app-carrier-matching
+          [filteredProviders]="filteredProviders()"
+          [maxPrice]="maxPrice()"
+          [maxDistance]="maxDistance()"
+          [minRating]="minRating()"
+          [minCapacity]="minCapacity()"
+          (editRequest)="editRequest()"
+          (resetFilters)="resetFilters()"
+          (setSort)="setSort($event)"
+          (setKind)="setKind($event)"
+          (setAvailability)="setAvailability($event)"
+          (setNumberFilter)="setNumberFilter($event)"
+          (viewProfile)="viewProfile($event)"
+          (selectProvider)="selectProvider($event)"
+        ></app-carrier-matching>
+      }
+
+      @case ('profile') {
+        @if (selectedProfile(); as provider) {
+          <app-carrier-profile
+            [provider]="provider"
+            (backToMatching)="setView('matching')"
+            (requestProfile)="requestProfile()"
+          ></app-carrier-profile>
+        }
+      }
+
+      @case ('summary') {
+        @if (selectedProvider(); as provider) {
+          <app-carrier-summary
+            [provider]="provider"
+            [form]="form"
+            (chooseAnotherCarrier)="setView('matching')"
+            (confirmBooking)="confirmProviderBooking()"
+          ></app-carrier-summary>
+        }
+      }
+
+      @case ('status') {
+        @if (selectedProvider(); as provider) {
+          <app-carrier-status
+            [provider]="provider"
+            [bookingStatus]="bookingStatus()"
+            [form]="form"
+            (cancelBooking)="cancelBooking()"
+            (advanceStatus)="advanceStatus()"
+            (rateCarrier)="setView('rating')"
+          ></app-carrier-status>
+        }
+      }
+
+      @case ('rating') {
+        @if (selectedProvider(); as provider) {
+          <app-carrier-rating
+            [provider]="provider"
+            [rating]="rating()"
+            [review]="review()"
+            [feedbackSubmitted]="feedbackSubmitted()"
+            (setRating)="setRating($event)"
+            (updateReview)="updateReview($event)"
+            (submitFeedback)="submitFeedback()"
+          ></app-carrier-rating>
+        }
+      }
+    }
+  </main>
+</div>
