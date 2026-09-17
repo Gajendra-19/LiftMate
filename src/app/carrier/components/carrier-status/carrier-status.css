@@ -1,0 +1,28 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.status-tracker {
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.status-item {
+  min-width: 90px;
+  opacity: 0.75;
+}
+
+.status-item.done {
+  opacity: 1;
+}
+
+.status-badge {
+  background: #e9ecef;
+  color: #495057;
+}
+
+.status-item.done .status-badge {
+  background: #198754;
+  color: #fff;
+}

@@ -3,8 +3,8 @@ import { Provider } from '../../carrier.types';
 
 @Component({
   selector: 'app-carrier-rating',
-  templateUrl: './carrier-rating.component.html',
-  styleUrls: ['./carrier-rating.component.css'],
+  templateUrl: './carrier-rating.html',
+  styleUrls: ['./carrier-rating.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CarrierRatingComponent {

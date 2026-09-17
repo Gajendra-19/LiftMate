@@ -5,8 +5,8 @@ import { BookingForm, Provider } from '../../carrier.types';
 @Component({
   selector: 'app-carrier-summary',
   imports: [ReactiveFormsModule],
-  templateUrl: './carrier-summary.component.html',
-  styleUrls: ['./carrier-summary.component.css'],
+  templateUrl: './carrier-summary.html',
+  styleUrls: ['./carrier-summary.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CarrierSummaryComponent {

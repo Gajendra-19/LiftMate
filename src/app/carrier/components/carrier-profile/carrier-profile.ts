@@ -3,8 +3,8 @@ import { Provider } from '../../carrier.types';
 
 @Component({
   selector: 'app-carrier-profile',
-  templateUrl: './carrier-profile.component.html',
-  styleUrls: ['./carrier-profile.component.css'],
+  templateUrl: './carrier-profile.html',
+  styleUrls: ['./carrier-profile.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CarrierProfileComponent {

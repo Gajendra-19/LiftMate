@@ -5,7 +5,8 @@ import { BookingForm, SelectedFile } from '../../carrier.types';
 @Component({
   selector: 'app-carrier-request',
   imports: [ReactiveFormsModule],
-  templateUrl: './carrier-request.component.html',
+  templateUrl: './carrier-request.html',
+  styleUrls: ['./carrier-request.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CarrierRequestComponent {

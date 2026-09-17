@@ -1,0 +1,16 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.profile-hero {
+  background: linear-gradient(135deg, rgba(13, 110, 253, 0.08), rgba(13, 110, 253, 0.02));
+}
+
+.avatar {
+  flex-shrink: 0;
+}
+
+blockquote {
+  margin: 0;
+}

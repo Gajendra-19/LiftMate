@@ -1,36 +1,35 @@
-// src/app/carrier/carrier.service.ts
 import { Injectable } from '@angular/core';
-import { Provider, SelectedFile } from './carrier.types';
 import { providers as allProviders } from './carrier.data';
+import { BookingStatus, Provider, ProviderKind, SelectedFile } from './carrier.types';
 
 @Injectable({ providedIn: 'root' })
 export class CarrierService {
-  // Shared data
-  providers = allProviders;
+  readonly providers = allProviders;
 
-  // Filter providers based on criteria (same as CarrierComponent's computed logic)
   filterProviders(
     maxPrice: number,
     maxDistance: number,
     minRating: number,
     minCapacity: number,
-    kindFilter: 'All' | any,
+    kindFilter: 'All' | ProviderKind,
     availabilityOnly: boolean,
     weight: number,
   ): Provider[] {
-    return this.providers.filter((provider) => {
-      return (
+    return this.providers.filter(
+      (provider) =>
         provider.capacity >= Math.max(weight, minCapacity) &&
         provider.price <= maxPrice &&
         provider.distance <= maxDistance &&
         provider.rating >= minRating &&
         (kindFilter === 'All' || provider.kind === kindFilter) &&
-        (!availabilityOnly || provider.available)
-      );
-    });
+        (!availabilityOnly || provider.available),
+    );
   }
 
-  // File handling utilities used by CarrierRequestComponent
+  getStatusFlow(): BookingStatus[] {
+    return ['Request Sent', 'Accepted', 'On the Way', 'Arrived', 'Job Started', 'Completed'];
+  }
+
   addFiles(event: Event, selectedFiles: SelectedFile[]): SelectedFile[] {
     const input = event.target as HTMLInputElement;
     const files = input.files ? Array.from(input.files) : [];
@@ -38,12 +37,13 @@ export class CarrierService {
       .filter(
         (file) =>
           file.size <= 10 * 1024 * 1024 &&
-          ['image/png', 'image/jpeg', 'image/svg+xml', 'application/pdf'].includes(file.type)
+          ['image/png', 'image/jpeg', 'image/svg+xml', 'application/pdf'].includes(file.type),
       )
       .map((file) => ({
         file,
         previewUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : null,
       }));
+
     input.value = '';
     return [...selectedFiles, ...newFiles];
   }
@@ -51,6 +51,6 @@ export class CarrierService {
   removeFile(index: number, selectedFiles: SelectedFile[]): SelectedFile[] {
     const fileToRemove = selectedFiles[index];
     if (fileToRemove?.previewUrl) URL.revokeObjectURL(fileToRemove.previewUrl);
-    return selectedFiles.filter((_, i) => i !== index);
+    return selectedFiles.filter((_, fileIndex) => fileIndex !== index);
   }
 }

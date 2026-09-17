@@ -1,35 +1,41 @@
 .dashboard-shell {
-  background: #f9f9ff;
+  background: #f6f6f8;
   display: flex;
   min-height: calc(100vh - 72px);
+  overflow: hidden;
 }
 .dashboard-sidebar {
-  background: #24233b;
+  background: #26233d;
   color: #fff;
   display: flex;
-  flex: 0 0 245px;
+  flex: 0 0 300px;
   flex-direction: column;
-  padding: 2rem 1rem 1.25rem;
+  min-height: calc(100vh - 72px);
+  padding: 2rem 1rem 1.2rem;
+  width: 300px;
 }
 .sidebar-label {
   color: #aaa9bc;
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: 0.1em;
-  margin: 0 0.75rem 1.25rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  margin: 0 0.75rem 1.5rem;
   text-transform: uppercase;
 }
 .profile-mini {
   align-items: center;
   border-bottom: 1px solid rgba(255, 255, 255, 0.14);
   display: flex;
-  gap: 0.7rem;
+  gap: 0.8rem;
   margin: 0 0.5rem 1.5rem;
-  padding: 0 0 1.25rem;
+  padding: 0 0 1.15rem;
 }
 .profile-mini strong,
 .profile-mini small {
   display: block;
+}
+.profile-mini strong {
+  font-size: 1.15rem;
 }
 .profile-mini small {
   color: #b9b8c7;
@@ -42,14 +48,15 @@
   border-radius: 50%;
   display: flex;
   font-weight: 700;
-  height: 38px;
+  font-size: 1.2rem;
+  height: 40px;
   justify-content: center;
-  width: 38px;
+  width: 40px;
 }
 .side-nav {
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.3rem;
 }
 .side-nav button,
 .side-nav a,
@@ -57,11 +64,13 @@
   align-items: center;
   background: transparent;
   border: 0;
-  border-radius: 0.55rem;
-  color: #c9c8d7;
+  border-radius: 0.7rem;
+  color: #d5d4e6;
   display: flex;
-  gap: 0.75rem;
-  padding: 0.8rem 0.75rem;
+  gap: 0.8rem;
+  font-size: 1.08rem;
+  min-height: 52px;
+  padding: 0.8rem 0.8rem;
   text-align: left;
   text-decoration: none;
   transition:
@@ -75,12 +84,13 @@
 .side-nav a.active {
   background: #4f46e5;
   color: #fff;
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
 }
 .side-nav button:hover,
 .side-nav a:hover {
   background: #6259f2;
   color: #fff;
-  transform: translateX(3px);
+  transform: translateX(0);
 }
 .side-nav .material-icons,
 .signout-link .material-icons {
@@ -93,9 +103,12 @@
   display: none;
 }
 .dashboard-content {
+  background: #f4f4f6;
   flex: 1;
-  max-width: 1120px;
-  padding: clamp(1.5rem, 5vw, 4rem);
+  height: 100%;
+  max-width: none;
+  overflow-y: auto;
+  padding: clamp(2.2rem, 4vw, 4rem);
 }
 .content-heading {
   align-items: flex-end;
@@ -124,6 +137,59 @@
   border-radius: 0.75rem;
   box-shadow: 0 8px 24px rgba(25, 25, 55, 0.05);
   padding: 1.25rem;
+}
+.recent-panel {
+  background: #fff;
+  border: 1px solid #e2e5eb;
+  border-radius: 1rem;
+  box-shadow: none;
+  overflow: hidden;
+  padding: 0;
+}
+.recent-panel .d-flex.justify-content-between {
+  align-items: center;
+  padding: 0 1.5rem;
+  min-height: 64px;
+}
+.recent-panel .activity-row {
+  align-items: center;
+  border-top: 1px solid #e9ebf0;
+  display: flex;
+  gap: 1.2rem;
+  margin-top: 0;
+  padding: 1.4rem 1.5rem;
+}
+.recent-panel .activity-row:first-of-type {
+  border-top: 0;
+}
+.recent-panel .activity-row strong {
+  display: block;
+  font-size: 1.15rem;
+  margin-bottom: 0.2rem;
+}
+.recent-panel .activity-row small {
+  color: #6b7280;
+  font-size: 0.93rem;
+}
+.recent-panel .activity-price {
+  color: #111827;
+  font-size: 1.1rem;
+  font-weight: 700;
+  margin-left: auto;
+}
+.recent-panel .activity-icon {
+  align-items: center;
+  background: #eafaf0;
+  border-radius: 50%;
+  color: #1a8f55;
+  display: inline-flex;
+  font-size: 1.6rem;
+  height: 34px;
+  justify-content: center;
+  min-width: 34px;
+}
+.content-heading .btn-primary {
+  margin-left: auto;
 }
 .pending-banner {
   align-items: center;
@@ -194,10 +260,18 @@
 @media (max-width: 900px) {
   .dashboard-shell {
     display: block;
+    height: auto;
+    min-height: auto;
+    overflow: visible;
   }
   .dashboard-sidebar {
     min-height: auto;
+    height: auto;
     padding: 1rem;
+  }
+  .dashboard-content {
+    height: auto;
+    overflow: visible;
   }
   .sidebar-label {
     margin-bottom: 0.8rem;

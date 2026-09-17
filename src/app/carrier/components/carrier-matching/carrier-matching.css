@@ -1,0 +1,30 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.marketplace {
+  display: block;
+}
+
+.filter-panel {
+  position: sticky;
+  top: 1rem;
+}
+
+.provider-card {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.provider-card:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08);
+}
+
+.avatar {
+  flex-shrink: 0;
+}
+
+.empty-state {
+  min-height: 260px;
+}

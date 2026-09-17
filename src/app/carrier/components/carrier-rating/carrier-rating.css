@@ -1,0 +1,20 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+.star-picker .btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #f4b740;
+}
+
+.star-picker .btn.active {
+  background: #fff3cd;
+  border-color: #f4b740;
+  color: #d97706;
+}

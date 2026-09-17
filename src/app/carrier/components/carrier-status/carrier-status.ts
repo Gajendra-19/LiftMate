@@ -5,8 +5,8 @@ import { BookingForm, BookingStatus, Provider } from '../../carrier.types';
 @Component({
   selector: 'app-carrier-status',
   imports: [ReactiveFormsModule],
-  templateUrl: './carrier-status.component.html',
-  styleUrls: ['./carrier-status.component.css'],
+  templateUrl: './carrier-status.html',
+  styleUrls: ['./carrier-status.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CarrierStatusComponent {

@@ -3,8 +3,8 @@ import { Provider } from '../../carrier.types';
 
 @Component({
   selector: 'app-carrier-matching',
-  templateUrl: './carrier-matching.component.html',
-  styleUrls: ['./carrier-matching.component.css'],
+  templateUrl: './carrier-matching.html',
+  styleUrls: ['./carrier-matching.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class CarrierMatchingComponent {

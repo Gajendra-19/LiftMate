@@ -2,7 +2,7 @@ import { Component, ChangeDetectionStrategy, computed, signal } from '@angular/c
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthService } from '../auth.service';
-import { providers } from './carrier.data';
+import { CarrierService } from './carrier.service';
 import {
   BookingForm,
   BookingStatus,
@@ -13,12 +13,12 @@ import {
   SelectedFile,
   SortOption,
 } from './carrier.types';
-import { CarrierRequestComponent } from './components/carrier-request/carrier-request.component';
-import { CarrierMatchingComponent } from './components/carrier-matching/carrier-matching.component';
-import { CarrierProfileComponent } from './components/carrier-profile/carrier-profile.component';
-import { CarrierSummaryComponent } from './components/carrier-summary/carrier-summary.component';
-import { CarrierStatusComponent } from './components/carrier-status/carrier-status.component';
-import { CarrierRatingComponent } from './components/carrier-rating/carrier-rating.component';
+import { CarrierRequestComponent } from './components/carrier-request/carrier-request';
+import { CarrierMatchingComponent } from './components/carrier-matching/carrier-matching';
+import { CarrierProfileComponent } from './components/carrier-profile/carrier-profile';
+import { CarrierSummaryComponent } from './components/carrier-summary/carrier-summary';
+import { CarrierStatusComponent } from './components/carrier-status/carrier-status';
+import { CarrierRatingComponent } from './components/carrier-rating/carrier-rating';
 
 @Component({
   selector: 'app-carrier',
@@ -54,7 +54,6 @@ export class Carrier {
   protected readonly minRating = signal(0);
   protected readonly minCapacity = signal(0);
   protected readonly sortOption = signal<SortOption>('recommended');
-  protected readonly providers = providers;
 
   protected readonly form = new FormGroup<BookingForm>({
     category: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
@@ -95,15 +94,14 @@ export class Carrier {
 
   protected readonly filteredProviders = computed(() => {
     const weight = this.form.controls.weight.value ?? 0;
-    const result = this.providers.filter(
-      (provider) =>
-        provider.capacity >= Math.max(weight, this.minCapacity()) &&
-        provider.price <= this.maxPrice() &&
-        provider.distance <= this.maxDistance() &&
-        provider.rating >= this.minRating() &&
-        (this.kindFilter() === 'All' || provider.kind === this.kindFilter()) &&
-        (!this.availabilityOnly() || provider.available) &&
-        provider.capacity >= weight,
+    const result = this.carrierService.filterProviders(
+      this.maxPrice(),
+      this.maxDistance(),
+      this.minRating(),
+      this.minCapacity(),
+      this.kindFilter(),
+      this.availabilityOnly(),
+      weight,
     );
 
     return [...result].sort((a, b) => {
@@ -123,8 +121,13 @@ export class Carrier {
   constructor(
     private readonly router: Router,
     private readonly authService: AuthService,
+    private readonly carrierService: CarrierService,
   ) {
     this.restorePendingBooking();
+  }
+
+  protected get providers(): Provider[] {
+    return this.carrierService.providers;
   }
 
   protected nextStep(): void {
@@ -203,14 +206,7 @@ export class Carrier {
   }
 
   protected advanceStatus(): void {
-    const statuses: BookingStatus[] = [
-      'Request Sent',
-      'Accepted',
-      'On the Way',
-      'Arrived',
-      'Job Started',
-      'Completed',
-    ];
+    const statuses = this.carrierService.getStatusFlow();
     const next = statuses[statuses.indexOf(this.bookingStatus()) + 1];
     if (next) this.bookingStatus.set(next);
   }
@@ -234,28 +230,11 @@ export class Carrier {
   }
 
   protected addFiles(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    const files = input.files ? Array.from(input.files) : [];
-    const selectedFiles = files
-      .filter(
-        (file) =>
-          file.size <= 10 * 1024 * 1024 &&
-          ['image/png', 'image/jpeg', 'image/svg+xml', 'application/pdf'].includes(file.type),
-      )
-      .map((file) => ({
-        file,
-        previewUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : null,
-      }));
-    this.selectedFiles.update((currentFiles) => [...currentFiles, ...selectedFiles]);
-    input.value = '';
+    this.selectedFiles.set(this.carrierService.addFiles(event, this.selectedFiles()));
   }
 
   protected removeFile(index: number): void {
-    this.selectedFiles.update((files) => {
-      const fileToRemove = files[index];
-      if (fileToRemove?.previewUrl) URL.revokeObjectURL(fileToRemove.previewUrl);
-      return files.filter((_, fileIndex) => fileIndex !== index);
-    });
+    this.selectedFiles.set(this.carrierService.removeFile(index, this.selectedFiles()));
   }
 
   protected setSort(event: Event): void {
