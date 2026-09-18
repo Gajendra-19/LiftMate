@@ -23,6 +23,6 @@
 }
 
 .status-item.done .status-badge {
-  background: #198754;
+  background: var(--lm-success);
   color: #fff;
 }

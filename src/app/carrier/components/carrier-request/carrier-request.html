@@ -10,40 +10,33 @@
       [class.text-primary]="requestStep() === 1"
       [class.fw-bold]="requestStep() === 1"
       class="mt-2"
-      >Load Details</small
-    >
+      >Load Details</small>
   </div>
-  <div class="step-connector" [class.active]="requestStep() >= 2"></div>
+  <div class="step-connector"></div>
   <div class="d-flex flex-column align-items-center step-item">
     <div
       class="step-circle"
       [class.active]="requestStep() >= 2"
-      [class.inactive]="requestStep() < 2"
-    >
+      [class.inactive]="requestStep() < 2">
       2
     </div>
     <small
       [class.text-primary]="requestStep() === 2"
       [class.fw-bold]="requestStep() === 2"
-      class="text-secondary mt-2"
-      >Location</small
-    >
+      class="text-secondary mt-2">Location</small>
   </div>
-  <div class="step-connector" [class.active]="requestStep() >= 3"></div>
+  <div class="step-connector"></div>
   <div class="d-flex flex-column align-items-center step-item">
     <div
       class="step-circle"
       [class.active]="requestStep() >= 3"
-      [class.inactive]="requestStep() < 3"
-    >
+      [class.inactive]="requestStep() < 3">
       3
     </div>
     <small
       [class.text-primary]="requestStep() === 3"
       [class.fw-bold]="requestStep() === 3"
-      class="text-secondary mt-2"
-      >Confirm</small
-    >
+      class="text-secondary mt-2">Confirm</small>
   </div>
 </div>
 
@@ -73,9 +66,7 @@
               id="category"
               formControlName="category"
               [class.is-invalid]="
-                form().controls.category.invalid && form().controls.category.touched
-              "
-            >
+                form().controls.category.invalid && form().controls.category.touched">
               <option disabled value="">Select equipment type</option>
               <option value="flatbed">Flatbed</option>
               <option value="dry_van">Dry Van</option>
@@ -83,8 +74,7 @@
               <option value="heavy_haul">Heavy Haul / Specialized</option>
             </select>
             @if (form().controls.category.invalid && form().controls.category.touched) {
-              <div class="invalid-feedback d-block">Cargo category is required.</div>
-            }
+              <div class="invalid-feedback d-block">Cargo category is required.</div>}
           </div>
 
           <div>

@@ -14,15 +14,21 @@ import { AuthService } from '../auth.service';
 export class Signup {
   fullname = '';
   email = '';
+  phone = '';
+  otpCode = '';
   password = '';
   confirmPassword = '';
 
   showPassword = signal(false);
   showConfirmPassword = signal(false);
   loading = signal(false);
+  otpSent = false;
+  phoneVerified = false;
+  generatedOtp = '';
   readonly returnUrl: string;
 
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  phonePattern = /^[+]?[(]?[0-9]{1,4}[)]?[-\s0-9]{7,15}$/;
 
   constructor(
     private toastr: ToastrService,
@@ -49,7 +55,7 @@ export class Signup {
   }
 
   onSubmit(): void {
-    if (!this.fullname || !this.email || !this.password || !this.confirmPassword) {
+    if (!this.fullname || !this.email || !this.phone || !this.password || !this.confirmPassword) {
       this.toastr.error('Please fill in all required fields');
       return;
     }

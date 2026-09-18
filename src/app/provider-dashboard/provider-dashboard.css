@@ -2,8 +2,8 @@
   max-width: 1120px;
 }
 .onboarding-panel {
-  background: linear-gradient(135deg, #eef8e2, #fff);
-  border: 1px solid #d7e8c2;
+  background: linear-gradient(135deg, rgba(56, 189, 248, 0.08), #fff);
+  border: 1px solid rgba(37, 99, 235, 0.14);
   border-radius: 1rem;
   padding: clamp(1.5rem, 4vw, 3rem);
 }
@@ -23,9 +23,9 @@
 .profile-choice {
   align-items: flex-start;
   background: #fff;
-  border: 2px solid #dfe8d5;
+  border: 2px solid rgba(37, 99, 235, 0.12);
   border-radius: 0.8rem;
-  color: #17231f;
+  color: var(--lm-dark-surface);
   display: flex;
   flex-direction: column;
   gap: 0.55rem;
@@ -38,12 +38,12 @@
 }
 .profile-choice:hover,
 .profile-choice:focus-visible {
-  border-color: #78a83d;
-  box-shadow: 0 12px 25px rgba(23, 35, 31, 0.1);
+  border-color: var(--lm-primary);
+  box-shadow: 0 12px 25px rgba(15, 23, 42, 0.12);
   transform: translateY(-2px);
 }
 .profile-choice .material-icons {
-  color: #5f8e2d;
+  color: var(--lm-primary);
   font-size: 2.2rem;
 }
 .profile-choice strong {
@@ -54,7 +54,7 @@
   color: #66736a;
 }
 .choice-action {
-  color: #4e7825;
+  color: var(--lm-primary-dark);
   font-size: 0.9rem;
   font-weight: 700;
   margin-top: 0.5rem;
@@ -78,7 +78,7 @@
   margin-bottom: 0.4rem;
 }
 .profile-strip {
-  background: #17231f;
+  background: var(--lm-dark-surface);
   border-radius: 0.8rem;
   color: #fff;
   display: grid;
@@ -95,10 +95,10 @@
   color: #b4c0b8;
 }
 .profile-strip strong {
-  color: #d8efb4;
+  color: #dbeafe;
 }
 .eyebrow {
-  color: #4f46e5;
+  color: var(--lm-primary);
   font-size: 0.75rem;
   font-weight: 700;
   letter-spacing: 0.08em;
@@ -106,10 +106,10 @@
 }
 .online-pill,
 .status-pill {
-  background: #e8f7ee;
-  border: 1px solid #b9e7c9;
+  background: var(--lm-success-soft);
+  border: 1px solid rgba(22, 163, 74, 0.25);
   border-radius: 999px;
-  color: #16733a;
+  color: var(--lm-success);
   font-size: 0.85rem;
   font-weight: 700;
   padding: 0.55rem 0.85rem;
@@ -174,7 +174,7 @@
   width: 30px;
 }
 .job-step.done span {
-  background: #4f46e5;
+  background: var(--lm-primary);
   color: #fff;
 }
 .job-step div {

@@ -4,7 +4,6 @@
     <p class="login-subtitle">Welcome back to LiftMate</p>
 
     <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
-      <!-- Email Input -->
       <div class="form-group">
         <label for="email">Email Address</label>
         <input
@@ -16,7 +15,6 @@
           #emailControl="ngModel"
           pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
           required
-          (blur)="checkEmailValidity()"
         />
         <div
           class="error-message"
@@ -28,7 +26,6 @@
         </div>
       </div>
 
-      <!-- Password Input -->
       <div class="form-group">
         <label for="password">Password</label>
         <div class="password-wrapper">
@@ -42,9 +39,14 @@
             required
             minlength="6"
           />
-          <button type="button" class="eye-btn" (click)="togglePasswordVisibility()">
-            <span *ngIf="!showPassword">👁️</span>
-            <span *ngIf="showPassword">👁️‍🗨️</span>
+          <button
+            type="button"
+            class="eye-btn"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword ? 'Hide password' : 'Show password'"
+          >
+            <span class="material-icons" *ngIf="!showPassword">visibility</span>
+            <span class="material-icons" *ngIf="showPassword">visibility_off</span>
           </button>
         </div>
         <span class="error-message" *ngIf="passwordControl.invalid && passwordControl.touched">
@@ -72,12 +74,10 @@
         <span *ngIf="loading">Signing In...</span>
       </button>
 
-      <!-- Divider -->
       <div class="divider">
         <span>or</span>
       </div>
 
-      <!-- Sign Up Link -->
       <p class="signup-text">
         Don't have an account?
         <a routerLink="/signup" [queryParams]="{ returnUrl: returnUrl }">Create one</a>

@@ -1,5 +1,5 @@
 :root {
-  --bs-primary: #4f46e5;
+  --bs-primary: var(--lm-primary);
 }
 
 .carrier-container {
@@ -159,9 +159,9 @@
 }
 .avatar {
   align-items: center;
-  background: #e9e7ff;
+  background: var(--lm-primary-soft);
   border-radius: 50%;
-  color: #3930a3;
+  color: var(--lm-primary);
   display: flex;
   flex: 0 0 52px;
   font-weight: 700;
@@ -214,10 +214,10 @@
   color: #737381;
 }
 .status-pill {
-  background: #e8f7ee;
-  border: 1px solid #b9e7c9;
+  background: var(--lm-success-soft);
+  border: 1px solid rgba(22, 163, 74, 0.2);
   border-radius: 999px;
-  color: #16733a;
+  color: var(--lm-success);
   font-size: 0.85rem;
   font-weight: 700;
   padding: 0.55rem 0.85rem;
@@ -248,7 +248,7 @@
   width: 32px;
 }
 .status-item.done {
-  color: #3930a3;
+  color: var(--lm-primary);
   font-weight: 700;
 }
 .status-item.done span {

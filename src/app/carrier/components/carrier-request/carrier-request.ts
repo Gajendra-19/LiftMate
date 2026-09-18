@@ -9,6 +9,7 @@ import { BookingForm, SelectedFile } from '../../carrier.types';
   styleUrls: ['./carrier-request.css'],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class CarrierRequestComponent {
   form = input.required<FormGroup<BookingForm>>();
   requestStep = input.required<1 | 2 | 3>();
@@ -22,7 +23,6 @@ export class CarrierRequestComponent {
   addFiles = output<Event>();
   removeFile = output<number>();
 
-  protected readonly stepLabel = computed(
-    () => ({ 1: 'Load Details', 2: 'Location', 3: 'Confirm' })[this.requestStep()],
+  protected readonly stepLabel = computed(() => ({ 1: 'Load Details', 2: 'Location', 3: 'Confirm' })[this.requestStep()],
   );
 }

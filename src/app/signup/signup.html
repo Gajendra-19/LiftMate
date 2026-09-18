@@ -4,7 +4,6 @@
     <p class="signup-subtitle">Join LiftMate today</p>
 
     <form (ngSubmit)="onSubmit()" #signupForm="ngForm">
-      <!-- Full Name Input -->
       <div class="form-group">
         <label for="fullname">Full Name</label>
         <input
@@ -21,7 +20,6 @@
         }
       </div>
 
-      <!-- Email Input -->
       <div class="form-group">
         <label for="email">Email Address</label>
         <input
@@ -33,7 +31,6 @@
           #emailControl="ngModel"
           pattern="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$"
           required
-          (blur)="checkEmailValidity()"
         />
         @if (emailControl.invalid && (emailControl.touched || emailControl.dirty)) {
           <div class="error-message">
@@ -64,11 +61,16 @@
             required
             minlength="6"
           />
-          <button type="button" class="eye-btn" (click)="togglePasswordVisibility()">
+          <button
+            type="button"
+            class="eye-btn"
+            (click)="togglePasswordVisibility()"
+            [attr.aria-label]="showPassword() ? 'Hide password' : 'Show password'"
+          >
             @if (!showPassword()) {
-              <span>👁️</span>
+              <span class="material-icons">visibility</span>
             } @else {
-              <span>👁️‍🗨️</span>
+              <span class="material-icons">visibility_off</span>
             }
           </button>
         </div>
@@ -84,7 +86,6 @@
         }
       </div>
 
-      <!-- Confirm Password Input -->
       <div class="form-group">
         <label for="confirmPassword">Confirm Password</label>
         <div class="password-wrapper">
@@ -98,11 +99,16 @@
             required
             minlength="6"
           />
-          <button type="button" class="eye-btn" (click)="toggleConfirmPasswordVisibility()">
+          <button
+            type="button"
+            class="eye-btn"
+            (click)="toggleConfirmPasswordVisibility()"
+            [attr.aria-label]="showConfirmPassword() ? 'Hide confirm password' : 'Show confirm password'"
+          >
             @if (!showConfirmPassword()) {
-              <span>👁️</span>
+              <span class="material-icons">visibility</span>
             } @else {
-              <span>👁️‍🗨️</span>
+              <span class="material-icons">visibility_off</span>
             }
           </button>
         </div>
@@ -124,12 +130,10 @@
         }
       </button>
 
-      <!-- Divider -->
       <div class="divider">
         <span>or</span>
       </div>
 
-      <!-- Login Link -->
       <p class="login-text">
         Already have an account?
         <a routerLink="/login" [queryParams]="{ returnUrl: returnUrl }">Sign In</a>

@@ -35,10 +35,8 @@ export class Login {
     this.showPassword = !this.showPassword;
   }
 
-  checkEmailValidity(): void {
-    if (this.email && !this.emailPattern.test(this.email)) {
-      console.log('Invalid email format');
-    }
+  continueWithGoogle(): void {
+    this.toastr.info('Google sign-in is available for the next LiftMate account flow.');
   }
 
   onSubmit(): void {

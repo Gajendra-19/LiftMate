@@ -50,9 +50,10 @@
 
           <li class="nav-item ms-lg-2 d-flex align-items-center gap-2">
             <span
-              class="badge bg-secondary text-white rounded-pill px-3 py-2 fw-normal d-none d-lg-inline-block"
+              class="user-badge badge bg-secondary text-white rounded-pill px-3 py-2 fw-normal d-none d-lg-inline-block"
             >
-              👤 {{ authService.user()?.name }}
+              <span class="material-icons">person</span>
+              <span>{{ authService.user()?.name }}</span>
             </span>
             <button
               class="btn btn-outline-light btn-sm px-3 ms-lg-2"

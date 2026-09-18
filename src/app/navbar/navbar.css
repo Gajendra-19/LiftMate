@@ -14,7 +14,7 @@
   font-family: 'Inter', sans-serif;
   font-size: 0.95rem;
   font-weight: 500;
-  color: #94a3b8 !important;
+  color: #cbd5e1 !important;
   transition: all 0.2s ease;
   border-radius: 8px;
 }
@@ -27,7 +27,17 @@
 
 .nav-link.active {
   font-weight: 600;
-  color: #38bdf8 !important;
+  color: #7dd3fc !important;
+}
+
+.user-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.user-badge .material-icons {
+  font-size: 1rem;
 }
 
 .btn-primary {

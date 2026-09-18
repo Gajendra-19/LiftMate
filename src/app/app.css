@@ -1,0 +1,60 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap');
+
+:root {
+  --lm-primary: #2563eb;
+  --lm-primary-dark: #0284c7;
+  --lm-accent: #38bdf8;
+  --lm-dark-surface: #0f172a;
+  --lm-success: #16a34a;
+  --lm-success-soft: rgba(22, 163, 74, 0.1);
+  --lm-primary-soft: rgba(37, 99, 235, 0.08);
+  --lm-surface: #f8fafc;
+  --lm-surface-strong: #ffffff;
+  --lm-border: #e2e8f0;
+  --lm-text: #0f172a;
+  --lm-text-muted: #64748b;
+  --lm-shadow-sm: 0 8px 20px rgba(15, 23, 42, 0.08);
+  --lm-shadow-md: 0 16px 30px rgba(15, 23, 42, 0.12);
+  --lm-shadow-lg: 0 24px 60px rgba(15, 23, 42, 0.18);
+  --lm-radius-sm: 8px;
+  --lm-radius-md: 12px;
+  --lm-radius-lg: 16px;
+  --lm-pill: 999px;
+  --lm-focus-ring: 0 0 0 3px rgba(56, 189, 248, 0.28);
+  --lm-body-font: 'Inter', sans-serif;
+  --lm-heading-font: 'Outfit', sans-serif;
+  --bs-primary: var(--lm-primary);
+}
+
+html,
+body {
+  font-family: var(--lm-body-font);
+  background: var(--lm-surface);
+  color: var(--lm-text);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--lm-heading-font);
+}
+
+button,
+input,
+textarea,
+select,
+a {
+  font-family: inherit;
+}
+
+*:focus-visible {
+  outline: 2px solid var(--lm-accent);
+  outline-offset: 2px;
+}
+
+.app-main-content {
+  display: block;
+}
