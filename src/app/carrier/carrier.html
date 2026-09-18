@@ -49,8 +49,12 @@
           <app-carrier-summary
             [provider]="provider"
             [form]="form"
+            [paymentMethod]="paymentMethod()"
+            [paymentProcessing]="paymentProcessing()"
+            [paymentSuccess]="paymentSuccess()"
             (chooseAnotherCarrier)="setView('matching')"
             (confirmBooking)="confirmProviderBooking()"
+            (paymentMethodChange)="paymentMethod.set($event)"
           ></app-carrier-summary>
         }
       }
@@ -81,6 +85,43 @@
           ></app-carrier-rating>
         }
       }
+    }
+
+    @if (cancelModalOpen()) {
+      <div class="cancel-modal-backdrop" (click)="closeCancelModal()">
+        <div class="cancel-modal" role="dialog" aria-modal="true" (click)="$event.stopPropagation()">
+          <div class="cancel-modal-header">
+            <span class="cancel-title">Code</span>
+            <button
+              type="button"
+              class="cancel-close-btn"
+              (click)="closeCancelModal()"
+              aria-label="Close cancellation dialog"
+            >
+              ×
+            </button>
+          </div>
+
+          <div class="cancel-modal-body">
+            <p class="cancel-rule">
+              {{ cancelPolicyMessage().split('\n\n')[0] }}
+            </p>
+            <p class="cancel-fee-text">
+              {{ cancelPolicyMessage().split('\n\n')[1] }}
+            </p>
+            <p class="cancel-question">Do you want to cancel this request?</p>
+          </div>
+
+          <div class="cancel-modal-actions">
+            <button type="button" class="btn btn-outline-primary cancel-primary" (click)="confirmCancelBooking()">
+              OK
+            </button>
+            <button type="button" class="btn btn-outline-secondary cancel-secondary" (click)="closeCancelModal()">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
     }
   </main>
 </div>

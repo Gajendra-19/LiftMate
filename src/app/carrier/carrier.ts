@@ -8,6 +8,8 @@ import {
   BookingStatus,
   BookingValues,
   BookingView,
+  CancellationPolicy,
+  PaymentMethod,
   Provider,
   ProviderKind,
   SelectedFile,
@@ -46,6 +48,11 @@ export class Carrier {
   protected readonly review = signal('');
   protected readonly feedbackSubmitted = signal(false);
   protected readonly selectedFiles = signal<SelectedFile[]>([]);
+  protected readonly paymentMethod = signal<PaymentMethod>('card');
+  protected readonly paymentProcessing = signal(false);
+  protected readonly paymentSuccess = signal(false);
+  protected readonly cancelModalOpen = signal(false);
+  protected readonly cancelPolicyMessage = signal('');
 
   protected readonly kindFilter = signal<'All' | ProviderKind>('All');
   protected readonly availabilityOnly = signal(false);
@@ -202,7 +209,59 @@ export class Carrier {
 
   protected confirmProviderBooking(): void {
     if (this.bookingStatus() !== 'Request Sent') return;
-    this.view.set('status');
+    if (!this.selectedProvider()) return;
+    if (this.paymentProcessing()) return;
+
+    this.paymentProcessing.set(true);
+    this.paymentSuccess.set(false);
+
+    window.setTimeout(() => {
+      this.paymentProcessing.set(false);
+      this.paymentSuccess.set(true);
+
+      window.setTimeout(() => {
+        this.paymentSuccess.set(false);
+        this.view.set('status');
+      }, 2000);
+    }, 2000);
+  }
+
+  protected getCancellationPolicy(): CancellationPolicy {
+    const date = this.form.controls.date.value;
+    const time = this.form.controls.time.value;
+
+    if (!date || !time) {
+      return {
+        label: 'Policy applies once your pickup time is scheduled',
+        feePercent: 0,
+        description: 'Choose a booking date and time to calculate the applicable cancellation penalty.',
+      };
+    }
+
+    const scheduledAt = new Date(`${date}T${time}:00`);
+    const hoursUntil = (scheduledAt.getTime() - Date.now()) / 3600000;
+
+    if (hoursUntil > 24) {
+      return {
+        label: 'Free cancellation',
+        feePercent: 0,
+        description: 'Cancel more than 24 hours before pickup and there is no penalty.',
+      };
+    }
+
+    if (hoursUntil > 12) {
+      return {
+        label: '50% cancellation fee',
+        feePercent: 50,
+        description: 'Cancel between 12 and 24 hours before pickup and you will be charged 50% of the booking total.',
+      };
+    }
+
+    return {
+      label: '100% cancellation fee',
+      feePercent: 100,
+      description: 'Cancel within 12 hours of pickup or after dispatch, and the full amount is due.',
+    };
   }
 
   protected advanceStatus(): void {
@@ -212,9 +271,27 @@ export class Carrier {
   }
 
   protected cancelBooking(): void {
+    const policy = this.getCancellationPolicy();
+    const penaltyText =
+      policy.feePercent === 0
+        ? 'No charge will be applied.'
+        : `A ${policy.feePercent}% cancellation fee will apply.`;
+
+    this.cancelPolicyMessage.set(
+      `${policy.label}: ${policy.description}\n\n${penaltyText}\n\nDo you want to cancel this request?`,
+    );
+    this.cancelModalOpen.set(true);
+  }
+
+  protected confirmCancelBooking(): void {
+    this.cancelModalOpen.set(false);
     this.bookingStatus.set('Request Sent');
     this.selectedProvider.set(null);
     this.view.set('matching');
+  }
+
+  protected closeCancelModal(): void {
+    this.cancelModalOpen.set(false);
   }
 
   protected setRating(value: number): void {

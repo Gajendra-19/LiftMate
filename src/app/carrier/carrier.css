@@ -270,6 +270,100 @@
 .star-picker button.selected {
   color: #e5a21a;
 }
+
+.cancel-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1100;
+  padding: 1rem;
+}
+
+.cancel-modal {
+  width: min(100%, 760px);
+  background: #f4f0f2;
+  border: 1px solid #d9d3d6;
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+  overflow: hidden;
+}
+
+.cancel-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.25rem 0.9rem;
+  background: rgba(232, 221, 229, 0.85);
+  border-bottom: 1px solid rgba(143, 121, 136, 0.18);
+}
+
+.cancel-title {
+  font-size: 1.05rem;
+  color: #202124;
+  font-weight: 500;
+}
+
+.cancel-close-btn {
+  background: transparent;
+  border: none;
+  color: #3d3d3d;
+  font-size: 2rem;
+  line-height: 1;
+  padding: 0;
+  cursor: pointer;
+}
+
+.cancel-modal-body {
+  padding: 1.4rem 1.4rem 1.1rem;
+  color: #1f2937;
+}
+
+.cancel-rule,
+.cancel-fee-text,
+.cancel-question {
+  margin: 0 0 0.9rem;
+  font-size: 1.05rem;
+  line-height: 1.6;
+  color: #1f2937;
+}
+
+.cancel-fee-text {
+  font-size: 1.1rem;
+}
+
+.cancel-question {
+  margin-top: 1.2rem;
+  margin-bottom: 0;
+}
+
+.cancel-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.8rem;
+  padding: 0 1.4rem 1.35rem;
+}
+
+.cancel-primary,
+.cancel-secondary {
+  min-width: 110px;
+  border-radius: 8px;
+  font-weight: 600;
+  padding: 0.55rem 1.2rem;
+}
+
+.cancel-primary {
+  border-color: #5ea6ff;
+  color: #1d4ed8;
+}
+
+.cancel-secondary {
+  border-color: #b8bcc6;
+  color: #1f2937;
+}
+
 @media (max-width: 576px) {
   .filter-panel {
     position: static;

@@ -5,6 +5,13 @@ export type ProviderKind = 'Individual' | 'Team';
 export type SortOption = 'recommended' | 'price' | 'distance' | 'rating';
 export type BookingStatus =
   'Request Sent' | 'Accepted' | 'On the Way' | 'Arrived' | 'Job Started' | 'Completed';
+export type PaymentMethod = 'card' | 'wallet' | 'bank';
+
+export interface CancellationPolicy {
+  label: string;
+  feePercent: number;
+  description: string;
+}
 
 export interface BookingForm {
   category: FormControl<string>;

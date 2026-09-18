@@ -7,3 +7,71 @@
 .summary-list dd {
   margin: 0;
 }
+
+.payment-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(15, 23, 42, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.payment-loader-wrap,
+.payment-success-pop {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.94);
+  border-radius: 20px;
+  padding: 28px 32px;
+  box-shadow: 0 18px 40px rgba(15, 23, 42, 0.18);
+  min-width: 240px;
+}
+
+.payment-loader {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 5px solid rgba(16, 185, 129, 0.18);
+  border-top-color: #10b981;
+  animation: payment-spin 1s linear infinite;
+}
+
+.payment-processing-text {
+  color: #0f172a;
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
+.success-ring {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #22c55e, #16a34a);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 0 10px rgba(34, 197, 94, 0.18);
+}
+
+.success-ring .material-icons {
+  font-size: 3rem;
+  color: white;
+}
+
+.payment-success-text {
+  font-size: 1.1rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: #0f172a;
+}
+
+@keyframes payment-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

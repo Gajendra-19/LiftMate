@@ -65,6 +65,10 @@
     </div>
   </div>
 
+  <div class="alert alert-secondary mt-4 mb-0" role="alert">
+    <strong>Cancellation policy:</strong> You can cancel without charge more than 24 hours before pickup. Between 12 and 24 hours, a 50% fee applies. Within 12 hours or after dispatch, the full amount is charged.
+  </div>
+
   <div class="d-flex flex-wrap gap-2 mt-4 pt-2 border-top">
     @if (bookingStatus() === 'Request Sent') {
       <button class="btn btn-outline-danger" type="button" (click)="cancelBooking.emit()">
