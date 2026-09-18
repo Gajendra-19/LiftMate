@@ -37,7 +37,7 @@
             [(ngModel)]="password"
             #passwordControl="ngModel"
             required
-            minlength="6"
+            minlength="8"
           />
           <button
             type="button"
@@ -52,7 +52,7 @@
         <span class="error-message" *ngIf="passwordControl.invalid && passwordControl.touched">
           <span *ngIf="passwordControl.errors?.['required']">Password is required</span>
           <span *ngIf="passwordControl.errors?.['minlength']"
-            >Password must be at least 6 characters</span
+            >Password must be at least 8 characters with uppercase, lowercase, and a number</span
           >
         </span>
       </div>
@@ -69,9 +69,8 @@
       </div>
 
       <!-- Sign In Button -->
-      <button type="submit" class="btn-signin" [disabled]="loginForm.invalid || loading">
-        <span *ngIf="!loading">Sign In</span>
-        <span *ngIf="loading">Signing In...</span>
+      <button type="submit" class="btn-signin" [disabled]="loginForm.invalid">
+        Sign In
       </button>
 
       <div class="divider">

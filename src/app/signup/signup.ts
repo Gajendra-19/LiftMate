@@ -14,21 +14,15 @@ import { AuthService } from '../auth.service';
 export class Signup {
   fullname = '';
   email = '';
-  phone = '';
-  otpCode = '';
   password = '';
   confirmPassword = '';
 
   showPassword = signal(false);
   showConfirmPassword = signal(false);
   loading = signal(false);
-  otpSent = false;
-  phoneVerified = false;
-  generatedOtp = '';
   readonly returnUrl: string;
 
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-  phonePattern = /^[+]?[(]?[0-9]{1,4}[)]?[-\s0-9]{7,15}$/;
 
   constructor(
     private toastr: ToastrService,
@@ -55,18 +49,21 @@ export class Signup {
   }
 
   async onSubmit(): Promise<void> {
-    if (!this.fullname || !this.email || !this.phone || !this.password || !this.confirmPassword) {
+    const trimmedName = this.fullname.trim();
+    const trimmedEmail = this.email.trim();
+
+    if (!trimmedName || !trimmedEmail || !this.password || !this.confirmPassword) {
       this.toastr.error('Please fill in all required fields');
       return;
     }
 
-    if (!this.emailPattern.test(this.email)) {
+    if (!this.emailPattern.test(trimmedEmail)) {
       this.toastr.error('Please enter a valid email address');
       return;
     }
 
-    if (this.password.length < 6) {
-      this.toastr.error('Password must be at least 6 characters');
+    if (this.password.length < 8 || !/[A-Z]/.test(this.password) || !/[a-z]/.test(this.password) || !/\d/.test(this.password)) {
+      this.toastr.error('Password must be at least 8 characters with uppercase, lowercase, and a number');
       return;
     }
 
@@ -78,16 +75,22 @@ export class Signup {
     this.loading.set(true);
 
     try {
-      const success = await this.authService.register(this.fullname, this.email, this.password);
+      const success = await this.authService.register(trimmedName, trimmedEmail, this.password);
 
       if (success) {
         this.toastr.success('Registration successful!');
         this.router.navigateByUrl(this.returnUrl);
       } else {
         this.toastr.error('User already exists or registration failed.');
+        setTimeout(() => {
+          this.loading.set(false);
+        }, 1000);
+        return;
       }
     } finally {
-      this.loading.set(false);
+      if (!this.loading()) {
+        this.loading.set(false);
+      }
     }
   }
 }

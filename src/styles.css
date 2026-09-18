@@ -14,3 +14,102 @@ body {
 body {
   background: #f9f9ff;
 }
+
+#toast-container {
+  position: fixed !important;
+  top: 20px !important;
+  right: 20px !important;
+  left: auto !important;
+  bottom: auto !important;
+  width: min(360px, calc(100vw - 24px)) !important;
+  z-index: 9999 !important;
+}
+
+#toast-container.toast-top-right {
+  top: 20px !important;
+  right: 20px !important;
+}
+
+#toast-container .ngx-toastr {
+  max-width: 340px !important;
+  width: 100% !important;
+  word-wrap: break-word !important;
+  margin-bottom: 8px !important;
+}
+
+#toast-container .toast {
+  position: relative !important;
+  border-radius: 10px !important;
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.32) !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+  border-left: 4px solid transparent !important;
+  font-family: 'Inter', sans-serif !important;
+  backdrop-filter: blur(8px) !important;
+  margin: 0 0 10px !important;
+  padding: 14px 44px 12px 16px !important;
+  min-height: 68px !important;
+  overflow: hidden !important;
+  background-clip: padding-box !important;
+  color: #f8fafc !important;
+}
+
+#toast-container .toast .toast-title {
+  font-size: 0.7rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.08em !important;
+  text-transform: uppercase !important;
+  margin: 0 0 4px !important;
+  color: #f8fafc !important;
+}
+
+#toast-container .toast .toast-message {
+  font-size: 0.95rem !important;
+  line-height: 1.45 !important;
+  margin: 0 !important;
+  color: #e2e8f0 !important;
+  font-weight: 500 !important;
+}
+
+#toast-container .toast-success {
+  background: rgba(15, 23, 42, 0.92) !important;
+  border-left: 4px solid #34d399 !important;
+}
+
+#toast-container .toast-error {
+  background: linear-gradient(135deg, rgba(220, 38, 38, 0.96), rgba(153, 27, 27, 0.96)) !important;
+  border: 1px solid rgba(254, 202, 202, 0.35) !important;
+  box-shadow: 0 18px 36px rgba(127, 29, 29, 0.38) !important;
+  border-left: 4px solid #fda4af !important;
+}
+
+#toast-container .toast-error .toast-title,
+#toast-container .toast-error .toast-message {
+  color: #fff7f7 !important;
+}
+
+#toast-container .toast-info,
+#toast-container .toast-warning {
+  background: rgba(15, 23, 42, 0.92) !important;
+  border-left: 4px solid #7dd3fc !important;
+}
+
+#toast-container .toast-close-button {
+  top: 10px !important;
+  right: 10px !important;
+  color: #f8fafc !important;
+  opacity: 1 !important;
+  font-size: 16px !important;
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-radius: 50% !important;
+  width: 22px !important;
+  height: 22px !important;
+  line-height: 22px !important;
+  text-align: center !important;
+  padding: 0 !important;
+}
+
+#toast-container .toast-progress {
+  height: 3px !important;
+  border-radius: 999px !important;
+  background: rgba(255, 255, 255, 0.18) !important;
+}

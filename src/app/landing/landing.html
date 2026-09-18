@@ -20,14 +20,16 @@
       <div class="d-flex flex-wrap justify-content-center gap-3">
         <button
           class="btn btn-primary btn-lg px-4 py-3 fw-bold d-flex align-items-center gap-2 shadow-lg"
-          routerLink="/carrier"
+          [routerLink]="['/login']"
+          [queryParams]="{ returnUrl: '/carrier' }"
         >
           <span>Find a Carrier Now</span>
           <span class="material-icons">arrow_forward</span>
         </button>
         <button
           class="btn btn-outline-light btn-lg px-4 py-3 fw-semibold d-flex align-items-center gap-2"
-          routerLink="/provider"
+          [routerLink]="['/login']"
+          [queryParams]="{ returnUrl: '/provider' }"
         >
           <span class="material-icons">engineering</span>
           <span>Provider Workspace</span>
@@ -166,7 +168,11 @@
       <p class="lead text-secondary max-w-600 mx-auto mb-4">
         Book your first carrier today and experience heavy-lifting logistics simplified.
       </p>
-      <button class="btn btn-primary btn-lg px-5 py-3 fw-bold rounded-pill" routerLink="/carrier">
+      <button
+        class="btn btn-primary btn-lg px-5 py-3 fw-bold rounded-pill"
+        [routerLink]="['/login']"
+        [queryParams]="{ returnUrl: '/carrier' }"
+      >
         Find a Carrier Now
       </button>
     </div>

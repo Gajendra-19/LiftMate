@@ -1,26 +1,52 @@
 const express = require('express');
+const bcrypt = require('bcrypt');
 const router = express.Router();
 const User = require('../models/User');
 
+const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+
+const sanitizeValue = (value) => {
+  if (typeof value !== 'string') return '';
+  return value.replace(/[<>]/g, '').trim();
+};
+
+const validatePassword = (password) => {
+  if (typeof password !== 'string') return false;
+  return password.length >= 8 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /\d/.test(password);
+};
+
 router.post('/signup', async (req, res) => {
   try {
-    const { name, email, password } = req.body;
+    const name = sanitizeValue(req.body.name);
+    const email = sanitizeValue(req.body.email).toLowerCase();
+    const password = String(req.body.password || '').trim();
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'All fields are required' });
     }
 
-    const normalizedEmail = String(email).trim().toLowerCase();
-    const existingUser = await User.findOne({ email: normalizedEmail });
+    if (!emailPattern.test(email)) {
+      return res.status(400).json({ message: 'Please enter a valid email address' });
+    }
+
+    if (!validatePassword(password)) {
+      return res.status(400).json({
+        message: 'Password must be at least 8 characters and include uppercase, lowercase, and a number',
+      });
+    }
+
+    const existingUser = await User.findOne({ email });
 
     if (existingUser) {
       return res.status(409).json({ message: 'User already exists' });
     }
 
+    const hashedPassword = await bcrypt.hash(password, 12);
+
     const user = await User.create({
-      name: String(name).trim(),
-      email: normalizedEmail,
-      password: String(password),
+      name,
+      email,
+      password: hashedPassword,
       role: 'customer',
     });
 
@@ -37,20 +63,26 @@ router.post('/signup', async (req, res) => {
 
 router.post('/login', async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const email = sanitizeValue(req.body.email).toLowerCase();
+    const password = String(req.body.password || '').trim();
 
     if (!email || !password) {
       return res.status(400).json({ message: 'Email and password are required' });
     }
 
-    const normalizedEmail = String(email).trim().toLowerCase();
-    const user = await User.findOne({ email: normalizedEmail });
+    if (!emailPattern.test(email)) {
+      return res.status(401).json({ message: 'Invalid email or password' });
+    }
+
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 
-    if (user.password !== String(password)) {
+    const passwordMatches = await bcrypt.compare(password, user.password);
+
+    if (!passwordMatches) {
       return res.status(401).json({ message: 'Invalid email or password' });
     }
 

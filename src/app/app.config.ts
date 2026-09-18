@@ -11,9 +11,14 @@ export const appConfig: ApplicationConfig = {
     provideHttpClient(),
     provideRouter(routes),
     provideToastr({
-      timeOut: 4000,
-      positionClass: 'toast-top-right',
+      maxOpened: 3,
+      autoDismiss: true,
       preventDuplicates: true,
+      timeOut: 3500,
+      closeButton: true,
+      progressBar: true,
+      positionClass: 'toast-top-right',
+      tapToDismiss: true,
     }),
   ],
 };

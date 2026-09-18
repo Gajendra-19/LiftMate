@@ -17,7 +17,7 @@ export class Login {
   password: string = '';
   showPassword: boolean = false;
   loginError: string = '';
-  loading: boolean = false;
+  loading = false;
   readonly returnUrl: string;
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -35,11 +35,11 @@ export class Login {
     this.showPassword = !this.showPassword;
   }
 
-  continueWithGoogle(): void {
-    this.toastr.info('Google sign-in is available for the next LiftMate account flow.');
-  }
-
   async onSubmit(): Promise<void> {
+    if (this.loading) {
+      return;
+    }
+
     if (!this.email || !this.password) {
       this.toastr.error('Please fill in all fields');
       return;
@@ -50,8 +50,13 @@ export class Login {
       return;
     }
 
-    if (this.password.length < 6) {
-      this.toastr.error('Password must be at least 6 characters');
+    if (
+      this.password.length < 8 ||
+      !/[A-Z]/.test(this.password) ||
+      !/[a-z]/.test(this.password) ||
+      !/\d/.test(this.password)
+    ) {
+      this.toastr.error('Password must be at least 8 characters with uppercase, lowercase, and a number');
       return;
     }
 
@@ -64,9 +69,10 @@ export class Login {
         this.toastr.success('Signed in successfully.');
         this.router.navigateByUrl(this.returnUrl);
       } else {
-        this.toastr.error('Invalid email or password.');
-        this.password = '';
+        this.toastr.error('Invalid email or password.', 'Login Failed');
       }
+    } catch {
+      this.toastr.error('Invalid email or password.', 'Login Failed');
     } finally {
       this.loading = false;
     }

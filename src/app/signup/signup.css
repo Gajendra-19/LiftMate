@@ -141,11 +141,6 @@
   font-size: 13px;
 }
 
-.otp-hint {
-  color: #cbd5e1;
-  font-size: 0.72rem;
-}
-
 .terms-check {
   display: flex;
   align-items: flex-start;
