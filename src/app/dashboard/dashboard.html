@@ -1,6 +1,18 @@
 <main class="dashboard-shell">
-  <aside class="dashboard-sidebar" aria-label="Dashboard navigation">
-    <p class="sidebar-label">Workspace</p>
+  <aside
+    class="dashboard-sidebar"
+    [class.sidebar-collapsed]="sidebarCollapsed()"
+    aria-label="Dashboard navigation"
+  >
+    <div class="sidebar-top-row">
+      <p class="sidebar-label">Workspace</p>
+      <button class="sidebar-toggle" type="button" (click)="toggleSidebar()" aria-label="Toggle sidebar">
+        <span class="material-icons">
+          {{ sidebarCollapsed() ? 'chevron_right' : 'chevron_left' }}
+        </span>
+      </button>
+    </div>
+
     <div class="profile-mini">
       <div class="profile-avatar">{{ authService.user()?.name?.slice(0, 1) || 'U' }}</div>
       <div>
@@ -8,6 +20,7 @@
         <small>Customer account</small>
       </div>
     </div>
+
     <button
       class="mobile-menu-toggle"
       type="button"
@@ -17,6 +30,7 @@
     >
       <span class="material-icons">menu</span>{{ menuOpen() ? 'Close menu' : 'Menu' }}
     </button>
+
     <nav
       class="side-nav"
       id="dashboard-menu"
@@ -28,32 +42,38 @@
         routerLinkActive="active"
         [routerLinkActiveOptions]="{ exact: true }"
       >
-        <span class="material-icons">groups</span>Become a LiftMate
+        <span class="material-icons">groups</span>
+        <span class="nav-label">Become a LiftMate</span>
       </a>
       <button
         type="button"
         [class.active]="section() === 'overview' && !childRouteActive()"
         (click)="setSection('overview')"
       >
-        <span class="material-icons">local_shipping</span>Request LiftMate
+        <span class="material-icons">local_shipping</span>
+        <span class="nav-label">Request LiftMate</span>
       </button>
       <button
         type="button"
         [class.active]="section() === 'history'"
         (click)="setSection('history')"
       >
-        <span class="material-icons">history</span>History
+        <span class="material-icons">history</span>
+        <span class="nav-label">History</span>
       </button>
       <button
         type="button"
         [class.active]="section() === 'settings'"
         (click)="setSection('settings')"
       >
-        <span class="material-icons">settings</span>Settings
+        <span class="material-icons">settings</span>
+        <span class="nav-label">Settings</span>
       </button>
     </nav>
+
     <button class="signout-link" type="button" (click)="logout()">
-      <span class="material-icons">logout</span>Sign Out
+      <span class="material-icons">logout</span>
+      <span class="nav-label">Sign Out</span>
     </button>
   </aside>
 

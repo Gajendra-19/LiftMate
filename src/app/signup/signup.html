@@ -55,11 +55,11 @@
             [type]="showPassword() ? 'text' : 'password'"
             id="password"
             name="password"
-            placeholder="8+ chars incl. uppercase & number"
+            placeholder="6+ chars incl. uppercase & number"
             [(ngModel)]="password"
             #passwordControl="ngModel"
             required
-            minlength="8"
+            minlength="6"
           />
           <button
             type="button"
@@ -80,7 +80,7 @@
               <span>Password is required</span>
             }
             @if (passwordControl.errors?.['minlength']) {
-              <span>Password must be at least 8 characters with uppercase, lowercase, and a number</span>
+              <span>Password must be at least 6 characters with uppercase, lowercase, and a number</span>
             }
           </span>
         }
@@ -97,7 +97,7 @@
             [(ngModel)]="confirmPassword"
             #confirmPasswordControl="ngModel"
             required
-            minlength="8"
+            minlength="6"
           />
           <button
             type="button"

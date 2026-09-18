@@ -21,6 +21,8 @@
 
 .signup-box h2 {
   font-family: 'Outfit', sans-serif;
+  color: #f8fafc;
+  text-align: center;
 }
 
 .signup-subtitle {
@@ -173,7 +175,7 @@
   padding: 12px 20px;
   font-size: 0.96rem;
   font-weight: 700;
-  background: linear-gradient(135deg, #0284c7 0%, #2563eb 100%);
+  background: linear-gradient(135deg, #f43f5e 0%, #fb7185 100%);
   color: white;
   border: none;
   border-radius: 10px;
@@ -183,12 +185,12 @@
     box-shadow 0.2s ease,
     opacity 0.2s ease;
   margin-bottom: 20px;
-  box-shadow: 0 8px 20px rgba(37, 99, 235, 0.35);
+  box-shadow: 0 8px 20px rgba(244, 63, 94, 0.35);
 }
 
 .btn-signup:hover:not(:disabled) {
   transform: translateY(-1px);
-  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.42);
+  box-shadow: 0 12px 24px rgba(244, 63, 94, 0.42);
 }
 
 .btn-signup:disabled {

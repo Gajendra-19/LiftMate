@@ -24,6 +24,7 @@ export class Dashboard {
   protected readonly router = inject(Router);
   protected readonly section = signal<DashboardSection>('overview');
   protected readonly menuOpen = signal(false);
+  protected readonly sidebarCollapsed = signal(false);
   protected readonly childRouteActive = signal(false);
   protected readonly hasPendingRequest =
     sessionStorage.getItem('liftmate-pending-request') !== null;
@@ -59,6 +60,10 @@ export class Dashboard {
 
   protected toggleMenu(): void {
     this.menuOpen.update((isOpen) => !isOpen);
+  }
+
+  protected toggleSidebar(): void {
+    this.sidebarCollapsed.update((isCollapsed) => !isCollapsed);
   }
 
   protected continueRequest(): void {

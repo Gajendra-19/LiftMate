@@ -51,12 +51,12 @@ export class Login {
     }
 
     if (
-      this.password.length < 8 ||
+      this.password.length < 6 ||
       !/[A-Z]/.test(this.password) ||
       !/[a-z]/.test(this.password) ||
       !/\d/.test(this.password)
     ) {
-      this.toastr.error('Password must be at least 8 characters with uppercase, lowercase, and a number');
+      this.toastr.error('Password must be at least 6 characters with uppercase, lowercase, and a number');
       return;
     }
 
@@ -67,7 +67,7 @@ export class Login {
 
       if (success) {
         this.toastr.success('Signed in successfully.');
-        this.router.navigateByUrl(this.returnUrl);
+        this.router.navigateByUrl('/dashboard');
       } else {
         this.toastr.error('Invalid email or password.', 'Login Failed');
       }

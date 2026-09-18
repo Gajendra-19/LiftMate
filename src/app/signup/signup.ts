@@ -49,6 +49,10 @@ export class Signup {
   }
 
   async onSubmit(): Promise<void> {
+    if (this.loading()) {
+      return;
+    }
+
     const trimmedName = this.fullname.trim();
     const trimmedEmail = this.email.trim();
 
@@ -62,8 +66,13 @@ export class Signup {
       return;
     }
 
-    if (this.password.length < 8 || !/[A-Z]/.test(this.password) || !/[a-z]/.test(this.password) || !/\d/.test(this.password)) {
-      this.toastr.error('Password must be at least 8 characters with uppercase, lowercase, and a number');
+    if (
+      this.password.length < 6 ||
+      !/[A-Z]/.test(this.password) ||
+      !/[a-z]/.test(this.password) ||
+      !/\d/.test(this.password)
+    ) {
+      this.toastr.error('Password must be at least 6 characters with uppercase, lowercase, and a number');
       return;
     }
 
@@ -82,15 +91,9 @@ export class Signup {
         this.router.navigateByUrl(this.returnUrl);
       } else {
         this.toastr.error('User already exists or registration failed.');
-        setTimeout(() => {
-          this.loading.set(false);
-        }, 1000);
-        return;
       }
     } finally {
-      if (!this.loading()) {
-        this.loading.set(false);
-      }
+      this.loading.set(false);
     }
   }
 }
