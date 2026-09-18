@@ -1,10 +1,25 @@
 import { Injectable } from '@angular/core';
-import { providers as allProviders } from './carrier.data';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 import { BookingStatus, Provider, ProviderKind, SelectedFile } from './carrier.types';
 
 @Injectable({ providedIn: 'root' })
 export class CarrierService {
-  readonly providers = allProviders;
+  providers: Provider[] = [];
+
+  constructor(private readonly http: HttpClient) {
+    this.loadProviders();
+  }
+
+  async loadProviders(): Promise<void> {
+    try {
+      this.providers = await firstValueFrom(
+        this.http.get<Provider[]>('http://localhost:5000/api/providers'),
+      );
+    } catch {
+      this.providers = [];
+    }
+  }
 
   filterProviders(
     maxPrice: number,

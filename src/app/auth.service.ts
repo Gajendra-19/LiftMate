@@ -1,9 +1,12 @@
 import { Injectable, signal } from '@angular/core';
+import { HttpClient } from '@angular/common/http';
+import { firstValueFrom } from 'rxjs';
 
 interface StoredUser {
+  id: string;
   name: string;
   email: string;
-  password: string;
+  role: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -13,27 +16,54 @@ export class AuthService {
   readonly user = this.userState.asReadonly();
   readonly isLoggedIn = () => this.userState() !== null;
 
-  register(name: string, email: string, password: string): void {
-    const user = { name, email, password };
-    localStorage.setItem(this.storageKey, JSON.stringify(user));
-    this.userState.set(user);
-  }
+  constructor(private readonly http: HttpClient) {}
 
-  login(email: string, password: string): boolean {
-    const storedUser = this.readUser();
-    if (storedUser && storedUser.email === email && storedUser.password === password) {
-      this.userState.set(storedUser);
-      return true;
-    }
+  async register(name: string, email: string, password: string): Promise<boolean> {
+    try {
+      const response = await firstValueFrom(
+        this.http.post<{ _id: string; name: string; email: string; role: string }>(
+          'http://localhost:5000/api/auth/signup',
+          { name, email, password },
+        ),
+      );
 
-    if (!storedUser) {
-      const user = { name: email.split('@')[0], email, password };
+      const user: StoredUser = {
+        id: response._id,
+        name: response.name,
+        email: response.email,
+        role: response.role,
+      };
+
       localStorage.setItem(this.storageKey, JSON.stringify(user));
       this.userState.set(user);
       return true;
+    } catch {
+      return false;
     }
+  }
 
-    return false;
+  async login(email: string, password: string): Promise<boolean> {
+    try {
+      const response = await firstValueFrom(
+        this.http.post<{ _id: string; name: string; email: string; role: string }>(
+          'http://localhost:5000/api/auth/login',
+          { email, password },
+        ),
+      );
+
+      const user: StoredUser = {
+        id: response._id,
+        name: response.name,
+        email: response.email,
+        role: response.role,
+      };
+
+      localStorage.setItem(this.storageKey, JSON.stringify(user));
+      this.userState.set(user);
+      return true;
+    } catch {
+      return false;
+    }
   }
 
   logout(): void {

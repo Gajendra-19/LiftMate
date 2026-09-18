@@ -54,7 +54,7 @@ export class Signup {
     }
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     if (!this.fullname || !this.email || !this.phone || !this.password || !this.confirmPassword) {
       this.toastr.error('Please fill in all required fields');
       return;
@@ -77,11 +77,17 @@ export class Signup {
 
     this.loading.set(true);
 
-    setTimeout(() => {
+    try {
+      const success = await this.authService.register(this.fullname, this.email, this.password);
+
+      if (success) {
+        this.toastr.success('Registration successful!');
+        this.router.navigateByUrl(this.returnUrl);
+      } else {
+        this.toastr.error('User already exists or registration failed.');
+      }
+    } finally {
       this.loading.set(false);
-      this.authService.register(this.fullname, this.email, this.password);
-      this.toastr.success('Registration successful!');
-      this.router.navigateByUrl(this.returnUrl);
-    }, 800);
+    }
   }
 }

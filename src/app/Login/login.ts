@@ -39,7 +39,7 @@ export class Login {
     this.toastr.info('Google sign-in is available for the next LiftMate account flow.');
   }
 
-  onSubmit(): void {
+  async onSubmit(): Promise<void> {
     if (!this.email || !this.password) {
       this.toastr.error('Please fill in all fields');
       return;
@@ -57,15 +57,18 @@ export class Login {
 
     this.loading = true;
 
-    setTimeout(() => {
-      this.loading = false;
-      if (this.authService.login(this.email, this.password)) {
+    try {
+      const success = await this.authService.login(this.email, this.password);
+
+      if (success) {
         this.toastr.success('Signed in successfully.');
         this.router.navigateByUrl(this.returnUrl);
       } else {
         this.toastr.error('Invalid email or password.');
         this.password = '';
       }
-    }, 800);
+    } finally {
+      this.loading = false;
+    }
   }
 }
