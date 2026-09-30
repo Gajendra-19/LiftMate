@@ -1,9 +1,13 @@
 const express = require('express');
 const bcrypt = require('bcrypt');
+const jwt = require('jsonwebtoken');
 const router = express.Router();
 const User = require('../models/User');
+const Provider = require('../models/Provider');
+const { requireAuth, requireOwnership, getSecret } = require('../middleware/auth');
 
 const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const isValidPhone = (value) => Number.isInteger(Number(value)) && /^\d{10}$/.test(String(value));
 
 const sanitizeValue = (value) => {
   if (typeof value !== 'string') return '';
@@ -26,11 +30,19 @@ const verifyPassword = async (inputPassword, storedPassword) => {
   return storedPassword === inputPassword;
 };
 
+const issueToken = (user) => jwt.sign(
+  { userId: String(user._id), role: user.role },
+  getSecret(),
+  { expiresIn: '7d' },
+);
+
 router.post('/signup', async (req, res) => {
   try {
     const name = sanitizeValue(req.body.name);
     const email = sanitizeValue(req.body.email).toLowerCase();
     const password = String(req.body.password || '').trim();
+    const requestedRole = String(req.body.role || 'customer').toLowerCase();
+    const finalRole = requestedRole === 'worker' ? 'worker' : 'customer';
 
     if (!name || !email || !password) {
       return res.status(400).json({ message: 'All fields are required' });
@@ -46,6 +58,10 @@ router.post('/signup', async (req, res) => {
       });
     }
 
+    if (finalRole === 'worker' && !isValidPhone(req.body.workerProfile?.phone)) {
+      return res.status(400).json({ message: 'Worker phone number must contain exactly 10 digits' });
+    }
+
     const existingUser = await User.findOne({ email });
 
     if (existingUser) {
@@ -58,14 +74,50 @@ router.post('/signup', async (req, res) => {
       name,
       email,
       password: hashedPassword,
-      role: 'customer',
+      role: finalRole,
     });
+
+    if (finalRole === 'worker') {
+      const workerProfile = req.body.workerProfile || {};
+      const equipment = Array.isArray(workerProfile.equipment)
+        ? workerProfile.equipment
+        : typeof workerProfile.equipment === 'string'
+          ? workerProfile.equipment
+              .split(',')
+              .map((item) => item.trim())
+              .filter(Boolean)
+          : [];
+
+      const profile = {
+        userId: user._id,
+        name: name,
+        kind: workerProfile.kind === 'Team' ? 'Team' : 'Individual',
+        phone: Number(workerProfile.phone || 0),
+        teamName: String(workerProfile.teamName || '').trim(),
+        teamSize: Number(workerProfile.teamSize || 1),
+        serviceArea: String(workerProfile.serviceArea || '').trim(),
+        equipment,
+        capacity: Number(workerProfile.capacity || 0),
+        price: Number(workerProfile.rate || workerProfile.price || 0),
+        available: false,
+        rating: 0,
+        jobs: 0,
+        reviews: [],
+      };
+
+      await Provider.findOneAndUpdate(
+        { userId: user._id },
+        { $set: profile },
+        { upsert: true, new: true, setDefaultsOnInsert: true },
+      );
+    }
 
     return res.status(201).json({
       _id: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
+      token: issueToken(user),
     });
   } catch (error) {
     return res.status(500).json({ message: 'Signup failed', error: error.message });
@@ -107,9 +159,41 @@ router.post('/login', async (req, res) => {
       name: user.name,
       email: user.email,
       role: user.role,
+      token: issueToken(user),
     });
   } catch (error) {
     return res.status(500).json({ message: 'Login failed', error: error.message });
+  }
+});
+
+router.get('/profile/:userId', requireAuth, requireOwnership(), async (req, res) => {
+  try {
+    const user = await User.findById(req.params.userId).select('name email role location address').lean();
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    return res.json({ ...user, _id: String(user._id) });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to fetch profile', error: error.message });
+  }
+});
+
+router.patch('/profile/:userId', requireAuth, requireOwnership(), async (req, res) => {
+  try {
+    const name = sanitizeValue(req.body.name);
+    const location = sanitizeValue(req.body.location);
+    const address = sanitizeValue(req.body.address);
+    if (!name || !location || !address) {
+      return res.status(400).json({ message: 'Name, location, and address are required' });
+    }
+
+    const user = await User.findByIdAndUpdate(
+      req.params.userId,
+      { $set: { name, location, address } },
+      { new: true, runValidators: true },
+    ).select('name email role location address').lean();
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    return res.json({ ...user, _id: String(user._id) });
+  } catch (error) {
+    return res.status(500).json({ message: 'Failed to update profile', error: error.message });
   }
 });
 

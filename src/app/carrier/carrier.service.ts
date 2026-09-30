@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
 import { BookingStatus, Provider, ProviderKind, SelectedFile } from './carrier.types';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class CarrierService {
@@ -13,9 +14,13 @@ export class CarrierService {
 
   async loadProviders(): Promise<void> {
     try {
-      this.providers = await firstValueFrom(
-        this.http.get<Provider[]>('http://localhost:5000/api/providers'),
+      const providers = await firstValueFrom(
+        this.http.get<Array<Provider & { _id?: string }>>(`${environment.apiUrl}/providers`),
       );
+      this.providers = (providers ?? []).map((provider) => ({
+        ...provider,
+        id: String(provider._id ?? provider.id ?? ''),
+      }));
     } catch {
       this.providers = [];
     }

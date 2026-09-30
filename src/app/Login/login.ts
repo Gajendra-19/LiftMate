@@ -50,16 +50,6 @@ export class Login {
       return;
     }
 
-    if (
-      this.password.length < 6 ||
-      !/[A-Z]/.test(this.password) ||
-      !/[a-z]/.test(this.password) ||
-      !/\d/.test(this.password)
-    ) {
-      this.toastr.error('Password must be at least 6 characters with uppercase, lowercase, and a number');
-      return;
-    }
-
     this.loading = true;
 
     try {
@@ -67,12 +57,15 @@ export class Login {
 
       if (success) {
         this.toastr.success('Signed in successfully.');
-        this.router.navigateByUrl('/dashboard');
+        this.router.navigateByUrl(this.authService.resolveReturnUrl(this.returnUrl));
       } else {
-        this.toastr.error('Invalid email or password.', 'Login Failed');
+        const message = this.authService.authError === 'network'
+          ? 'Unable to connect to LiftMate. Please try again.'
+          : 'Invalid email or password.';
+        this.toastr.error(message, 'Login Failed');
       }
     } catch {
-      this.toastr.error('Invalid email or password.', 'Login Failed');
+      this.toastr.error('Unable to connect to LiftMate. Please try again.', 'Network Error');
     } finally {
       this.loading = false;
     }

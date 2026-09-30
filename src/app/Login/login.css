@@ -3,16 +3,14 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
+  background: linear-gradient(135deg, #2b4167 0%, #28244f 50%, #172338 100%);
   padding: 20px;
   font-family: 'Inter', sans-serif;
 }
 
 .login-box {
-  background: rgba(15, 23, 42, 0.72);
-  border: 1px solid rgba(148, 163, 184, 0.2);
-  border-radius: 16px;
   box-shadow: 0 24px 60px rgba(15, 23, 42, 0.45);
+  color: #f8fafc;
   padding: 40px;
   width: 100%;
   max-width: 420px;

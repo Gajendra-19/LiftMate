@@ -29,7 +29,7 @@
           </button>
           · {{ profileKind }} profile
         </p>
-        <form class="profile-form" (ngSubmit)="registerAsLiftMate()">
+        <form class="profile-form" #profileForm="ngForm" (ngSubmit)="registerAsLiftMate()" novalidate>
           <div class="row g-3">
             <div class="col-md-6">
               <label for="profile-name">Full name</label
@@ -38,20 +38,36 @@
                 class="form-control"
                 name="profileName"
                 [(ngModel)]="profileName"
+                #profileNameControl="ngModel"
                 required
-                placeholder="e.g. Rahul Kumar"
+                minlength="2"
+                placeholder="e.g. Your full name"
               />
+              @if (profileForm.controls['profileName']?.invalid && profileForm.controls['profileName']?.touched) {
+                <small class="form-error">Enter your full name.</small>
+              }
             </div>
             <div class="col-md-6">
               <label for="profile-phone">Phone number</label
               ><input
                 id="profile-phone"
                 class="form-control"
+                type="number"
                 name="profilePhone"
                 [(ngModel)]="profilePhone"
+                #profilePhoneControl="ngModel"
                 required
-                placeholder="e.g. 98765 43210"
+                min="1000000000"
+                max="9999999999"
+                step="1"
+                (wheel)="$event.preventDefault()"
+                (keydown.arrowup)="$event.preventDefault()"
+                (keydown.arrowdown)="$event.preventDefault()"
+                placeholder="10 digit phone number"
               />
+              @if (profileForm.controls['profilePhone']?.invalid && profileForm.controls['profilePhone']?.touched) {
+                <small class="form-error">Enter exactly 10 digits, without a country code.</small>
+              }
             </div>
             @if (profileKind === 'Team') {
               <div class="col-md-6">
@@ -61,9 +77,14 @@
                   class="form-control"
                   name="teamName"
                   [(ngModel)]="teamName"
+                  #teamNameControl="ngModel"
                   required
+                  minlength="2"
                   placeholder="e.g. Mumbai Load Crew"
                 />
+                @if (profileForm.controls['teamName']?.invalid && profileForm.controls['teamName']?.touched) {
+                  <small class="form-error">Enter a team name.</small>
+                }
               </div>
               <div class="col-md-6">
                 <label for="team-size">Team size</label
@@ -75,9 +96,15 @@
                   max="5"
                   name="teamSize"
                   [(ngModel)]="teamSize"
+                  #teamSizeControl="ngModel"
                   required
+                  min="2"
+                  max="5"
                   placeholder="2 to 5"
                 /><small class="form-hint">Your team must have between 2 and 5 LiftMates.</small>
+                @if (profileForm.controls['teamSize']?.invalid && profileForm.controls['teamSize']?.touched) {
+                  <small class="form-error">Team size must be between 2 and 5.</small>
+                }
               </div>
             }
             <div class="col-md-6">
@@ -87,9 +114,14 @@
                 class="form-control"
                 name="serviceArea"
                 [(ngModel)]="serviceArea"
+                #serviceAreaControl="ngModel"
                 required
+                minlength="2"
                 placeholder="e.g. Mumbai and Thane"
               />
+              @if (profileForm.controls['serviceArea']?.invalid && profileForm.controls['serviceArea']?.touched) {
+                <small class="form-error">Enter your service area.</small>
+              }
             </div>
             <div class="col-md-6">
               <label for="equipment">Equipment or vehicle</label
@@ -98,9 +130,14 @@
                 class="form-control"
                 name="equipment"
                 [(ngModel)]="equipment"
+                #equipmentControl="ngModel"
                 required
+                minlength="2"
                 placeholder="e.g. Hydraulic trolley, straps"
               />
+              @if (profileForm.controls['equipment']?.invalid && profileForm.controls['equipment']?.touched) {
+                <small class="form-error">Enter your equipment or vehicle.</small>
+              }
             </div>
             <div class="col-md-6">
               <label for="capacity">Maximum load capacity (kg)</label
@@ -111,9 +148,13 @@
                 min="1"
                 name="capacity"
                 [(ngModel)]="capacity"
+                #capacityControl="ngModel"
                 required
                 placeholder="e.g. 500"
               />
+              @if (profileForm.controls['capacity']?.invalid && profileForm.controls['capacity']?.touched) {
+                <small class="form-error">Capacity must be greater than 0 kg.</small>
+              }
             </div>
             <div class="col-md-6">
               <label for="rate">Starting rate per job (₹)</label
@@ -124,16 +165,71 @@
                 min="1"
                 name="rate"
                 [(ngModel)]="rate"
+                #rateControl="ngModel"
                 required
                 placeholder="e.g. 650"
               />
+              @if (profileForm.controls['rate']?.invalid && profileForm.controls['rate']?.touched) {
+                <small class="form-error">Rate must be greater than 0.</small>
+              }
             </div>
           </div>
-          <button class="btn btn-primary mt-4" type="submit">Create my LiftMate profile</button>
+          <button class="btn btn-primary mt-4" type="submit" [disabled]="profileForm.invalid">
+            Create my LiftMate profile
+          </button>
         </form>
       }
     </section>
   } @else {
+    <div class="worker-layout">
+      <aside class="worker-sidebar" aria-label="Worker navigation">
+        <div class="worker-sidebar-heading">
+          <span class="material-icons">workspace_premium</span>
+          <div>
+            <strong>Worker workspace</strong>
+            <small>{{ profile()?.name }}</small>
+          </div>
+        </div>
+        <nav class="worker-nav">
+          <button type="button" [class.active]="activeSection === 'request'" (click)="activeSection = 'request'">
+            <span class="material-icons">inbox</span>Requests
+          </button>
+          <button type="button" [class.active]="activeSection === 'team'" (click)="activeSection = 'team'">
+            <span class="material-icons">groups</span>Team
+          </button>
+          <button type="button" [class.active]="activeSection === 'reviews'" (click)="activeSection = 'reviews'">
+            <span class="material-icons">star</span>Reviews received
+          </button>
+          <button type="button" [class.active]="activeSection === 'settings'" (click)="activeSection = 'settings'">
+            <span class="material-icons">settings</span>Settings
+          </button>
+        </nav>
+        <div class="availability-control">
+          <div>
+            <small>Availability</small>
+            <strong>{{ available() ? 'Visible to customers' : 'Hidden from customers' }}</strong>
+          </div>
+          <button
+            class="availability-toggle"
+            type="button"
+            [class.enabled]="available()"
+            [attr.aria-pressed]="available()"
+            [disabled]="availabilitySaving()"
+            (click)="toggleAvailability()"
+          >
+            <span></span>
+          </button>
+        </div>
+        @if (availabilitySaving()) {
+          <small class="availability-status">Saving...</small>
+        } @else if (availabilityError()) {
+          <small class="availability-error">{{ availabilityError() }}</small>
+        }
+        <button class="worker-signout" type="button" (click)="logout()">
+          <span class="material-icons">logout</span>Sign out
+        </button>
+      </aside>
+      <section class="worker-main">
     <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
       <div>
         <p class="eyebrow mb-2">{{ profile()?.kind }} LiftMate profile</p>
@@ -144,7 +240,9 @@
           Review customer requests and decide which loads you want to carry.
         </p>
       </div>
-      <span class="online-pill">● Available for jobs</span>
+      <span class="online-pill" [class.offline-pill]="!available()">
+        {{ available() ? '● Available for jobs' : '○ Not available' }}
+      </span>
     </div>
     <section class="profile-strip mb-5">
       <div>
@@ -165,20 +263,115 @@
         <small>Capacity</small><strong>{{ profile()?.capacity }} kg</strong>
       </div>
       <div>
-        <small>Your starting rate</small><strong>₹{{ profile()?.rate }}</strong>
+        <small>Your starting rate</small><strong>₹{{ profile()?.price }}</strong>
       </div>
     </section>
+
+    @if (activeSection === 'team') {
+    <section class="team-panel mb-5">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <div>
+          <p class="eyebrow mb-1">Team</p>
+          <h2 class="h4 mb-0">Manage your team</h2>
+        </div>
+        <div class="team-toggle">
+          <button type="button" [class.active]="teamMode === 'create'" (click)="teamMode = 'create'">Create team</button>
+          <button type="button" [class.active]="teamMode === 'join'" (click)="teamMode = 'join'">Join team</button>
+        </div>
+      </div>
+
+      @if (teamMode === 'create') {
+        <div class="team-form">
+          <label>
+            Team name
+            <input class="form-control" [(ngModel)]="teamName" placeholder="e.g. Mumbai Load Crew" />
+          </label>
+          <button class="btn btn-primary" type="button" (click)="createOrJoinTeam()">Create team</button>
+        </div>
+      } @else {
+        <div class="team-form">
+          <label>
+            Team code
+            <input class="form-control" [(ngModel)]="joinCode" placeholder="Enter team invite code" />
+          </label>
+          <button class="btn btn-primary" type="button" (click)="createOrJoinTeam()">Join team</button>
+        </div>
+      }
+
+      <div class="team-members mt-3">
+        @for (member of teamMembers; track member) {
+          <span>{{ member }}</span>
+        }
+      </div>
+    </section>
+    }
+
+    @if (activeSection === 'reviews') {
+    <section class="dashboard-panel reviews-panel mb-5">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <div>
+          <p class="eyebrow mb-1">Customer feedback</p>
+          <h2 class="h4 mb-0">Reviews received</h2>
+        </div>
+        <strong class="review-score">★ {{ rating() }}</strong>
+      </div>
+      @for (review of reviews(); track review.id) {
+        <article class="review-row">
+          <div class="review-row-heading">
+            <strong>{{ review.customerName }}</strong>
+            <span>★ {{ review.rating }}</span>
+          </div>
+          <p>{{ review.reviewText || 'No written feedback provided.' }}</p>
+          <small>{{ review.createdAt | date: 'dd MMM yyyy' }}</small>
+        </article>
+      } @empty {
+        <div class="empty-state text-center py-5">
+          <span class="material-icons text-secondary fs-1">rate_review</span>
+          <p class="text-secondary mt-3 mb-0">No reviews received yet.</p>
+        </div>
+      }
+    </section>
+    }
+
+    @if (activeSection === 'settings') {
+    <section class="dashboard-panel worker-settings-panel mb-5">
+      <div class="mb-4">
+        <p class="eyebrow mb-1">Worker profile</p>
+        <h2 class="h4 mb-1">Update your service details</h2>
+        <p class="text-secondary mb-0">Customers see these details when choosing a LiftMate.</p>
+      </div>
+      <form #settingsForm="ngForm" (ngSubmit)="saveSettings()" novalidate>
+        <div class="settings-grid">
+          <label>Service area
+            <input class="form-control" name="settingsServiceArea" [(ngModel)]="serviceArea" required minlength="2" />
+          </label>
+          <label>Equipment or vehicle
+            <input class="form-control" name="settingsEquipment" [(ngModel)]="equipment" required minlength="2" />
+          </label>
+          <label>Maximum load capacity (kg)
+            <input class="form-control" name="settingsCapacity" type="number" min="1" [(ngModel)]="capacity" required />
+          </label>
+          <label>Starting rate per job (₹)
+            <input class="form-control" name="settingsRate" type="number" min="1" [(ngModel)]="rate" required />
+          </label>
+        </div>
+        <button class="btn btn-primary mt-4" type="submit" [disabled]="settingsForm.invalid">Save settings</button>
+      </form>
+    </section>
+    }
+
+    @if (activeSection === 'request') {
     <section class="stats-grid mb-5" aria-label="LiftMate overview">
       <article>
-        <span>New requests</span><strong>{{ requestState() === 'New request' ? 1 : 0 }}</strong>
+        <span>New requests</span><strong>{{ newRequestCount() }}</strong>
       </article>
-      <article><span>Accepted jobs</span><strong>3</strong></article>
-      <article><span>Completed jobs</span><strong>124</strong></article>
+      <article><span>Accepted jobs</span><strong>{{ acceptedJobCount() }}</strong></article>
+      <article><span>Completed jobs</span><strong>{{ completedJobCount() }}</strong></article>
       <article>
-        <span>This month</span><strong>₹{{ earnings }}</strong>
+        <span>This month</span><strong>₹{{ monthlyEarnings() }}</strong>
       </article>
       <article>
-        <span>Rating</span><strong>★ {{ rating }}</strong>
+        <span>Rating</span><strong>★ {{ rating() }}</strong>
       </article>
     </section>
     <div class="row g-4">
@@ -187,29 +380,32 @@
           <div class="d-flex justify-content-between align-items-center mb-4">
             <div>
               <p class="eyebrow mb-1">Customer request</p>
-              <h2 class="h4 mb-0">Someone wants to hire you</h2>
+              <h2 class="h4 mb-0">
+                {{ request()?.customer ? request()?.customer + ' wants to hire you' : 'No customer requests yet' }}
+              </h2>
             </div>
             <span class="status-pill">{{ requestState() }}</span>
           </div>
+          @if (request()) {
           <div class="request-details">
             <div>
-              <small>Customer</small><strong>{{ request().customer }}</strong>
+              <small>Customer</small><strong>{{ request()?.customer }}</strong>
             </div>
             <div>
-              <small>Load</small><strong>{{ request().load }} · {{ request().weight }} kg</strong>
+              <small>Load</small><strong>{{ request()?.load }} · {{ request()?.weight }} kg</strong>
             </div>
             <div>
-              <small>Pickup</small><strong>{{ request().pickup }}</strong>
+              <small>Pickup</small><strong>{{ request()?.pickup }}</strong>
             </div>
             <div>
-              <small>Drop</small><strong>{{ request().drop }}</strong>
+              <small>Drop</small><strong>{{ request()?.drop }}</strong>
             </div>
             <div>
               <small>Schedule</small
-              ><strong>{{ request().schedule }} · {{ request().duration }} hours</strong>
+              ><strong>{{ request()?.schedule }} · {{ request()?.duration }} hours</strong>
             </div>
             <div>
-              <small>Offered payment</small><strong>₹{{ request().payment }}</strong>
+              <small>Payment status</small><strong>{{ request()?.paymentStatus }} · ₹{{ request()?.payment }}</strong>
             </div>
           </div>
           @if (requestState() === 'New request') {
@@ -227,16 +423,26 @@
                 Show request again
               </button>
             </div>
+          } @else if (requestState() === 'Completed') {
+            <div class="alert alert-success mt-4">
+              This job has been completed.
+            </div>
           } @else {
             <div class="alert alert-success mt-4">
               You accepted this job. Keep the customer updated from the active job panel.
+            </div>
+          }
+          } @else {
+            <div class="empty-state text-center py-5 mt-4">
+              <span class="material-icons text-secondary fs-1">inbox</span>
+              <p class="text-secondary mt-3 mb-0">No customer requests have been assigned yet.</p>
             </div>
           }
         </div>
       </section>
       <section class="col-lg-5">
         <div class="dashboard-panel p-4 h-100">
-          <p class="eyebrow mb-1">Accepted job</p>
+          <p class="eyebrow mb-1">{{ requestState() === 'Completed' ? 'Completed job' : 'Accepted job' }}</p>
           <h2 class="h4 mb-4">Job progress</h2>
           @if (requestState() === 'Accepted') {
             <div class="job-tracker">
@@ -260,6 +466,8 @@
             >
               {{ activeStatus() === 'Completed' ? 'Job completed' : 'Update job status' }}
             </button>
+          } @else if (requestState() === 'Completed') {
+            <div class="alert alert-success mb-0">Job completed successfully.</div>
           } @else {
             <div class="empty-state text-center py-5">
               <span class="material-icons text-secondary fs-1">local_shipping</span>
@@ -269,6 +477,9 @@
             </div>
           }
         </div>
+      </section>
+    </div>
+    }
       </section>
     </div>
   }

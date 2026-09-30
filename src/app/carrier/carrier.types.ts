@@ -29,7 +29,7 @@ export interface BookingForm {
 export type BookingValues = { [Key in keyof BookingForm]: BookingForm[Key]['value'] };
 
 export interface Provider {
-  id: number;
+  id: string;
   name: string;
   kind: ProviderKind;
   avatar: string;

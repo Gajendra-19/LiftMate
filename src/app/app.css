@@ -1,5 +1,3 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Outfit:wght@500;600;700;800&display=swap');
-
 :root {
   --lm-primary: #2563eb;
   --lm-primary-dark: #0284c7;
@@ -21,8 +19,8 @@
   --lm-radius-lg: 16px;
   --lm-pill: 999px;
   --lm-focus-ring: 0 0 0 3px rgba(56, 189, 248, 0.28);
-  --lm-body-font: 'Inter', sans-serif;
-  --lm-heading-font: 'Outfit', sans-serif;
+  --lm-body-font: 'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+  --lm-heading-font: 'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif;
   --bs-primary: var(--lm-primary);
 }
 

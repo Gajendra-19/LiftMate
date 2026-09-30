@@ -31,7 +31,6 @@ __screenshots__/
 # Environment and secret files
 .env
 .env.*
-!.env.example
 
 # IDEs and editors
 .idea/

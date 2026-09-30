@@ -36,6 +36,17 @@
   margin-bottom: 20px;
 }
 
+.worker-onboarding-note {
+  background: rgba(56, 189, 248, 0.08);
+  border: 1px solid rgba(56, 189, 248, 0.2);
+  border-radius: 10px;
+  color: #cbd5e1;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  margin: 0 0 20px;
+  padding: 10px 12px;
+}
+
 .form-group label {
   display: block;
   font-size: 0.8rem;
@@ -57,6 +68,18 @@
     border-color 0.2s ease,
     box-shadow 0.2s ease,
     background-color 0.2s ease;
+}
+
+.form-group input[type='number'] {
+  appearance: textfield;
+  -moz-appearance: textfield;
+}
+
+.form-group input[type='number']::-webkit-inner-spin-button,
+.form-group input[type='number']::-webkit-outer-spin-button {
+  appearance: none;
+  -webkit-appearance: none;
+  margin: 0;
 }
 
 .form-group input::placeholder {

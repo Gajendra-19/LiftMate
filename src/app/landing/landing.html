@@ -26,6 +26,7 @@
           <span>Find a Carrier Now</span>
           <span class="material-icons">arrow_forward</span>
         </button>
+        @if (!authService.isLoggedIn() || authService.isWorker()) {
         <button
           class="btn btn-outline-light btn-lg px-4 py-3 fw-semibold d-flex align-items-center gap-2"
           [routerLink]="['/login']"
@@ -34,6 +35,7 @@
           <span class="material-icons">engineering</span>
           <span>Provider Workspace</span>
         </button>
+        }
       </div>
 
       <!-- Trust Badges -->

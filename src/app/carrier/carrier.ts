@@ -1,12 +1,13 @@
+import { HttpClient } from '@angular/common/http';
 import { Component, ChangeDetectionStrategy, computed, signal } from '@angular/core';
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../auth.service';
 import { CarrierService } from './carrier.service';
 import {
   BookingForm,
   BookingStatus,
-  BookingValues,
   BookingView,
   CancellationPolicy,
   PaymentMethod,
@@ -21,6 +22,7 @@ import { CarrierProfileComponent } from './components/carrier-profile/carrier-pr
 import { CarrierSummaryComponent } from './components/carrier-summary/carrier-summary';
 import { CarrierStatusComponent } from './components/carrier-status/carrier-status';
 import { CarrierRatingComponent } from './components/carrier-rating/carrier-rating';
+import { environment } from '../../environments/environment';
 
 @Component({
   selector: 'app-carrier',
@@ -51,6 +53,7 @@ export class Carrier {
   protected readonly paymentMethod = signal<PaymentMethod>('card');
   protected readonly paymentProcessing = signal(false);
   protected readonly paymentSuccess = signal(false);
+  protected readonly lastBookingId = signal<string | null>(null);
   protected readonly cancelModalOpen = signal(false);
   protected readonly cancelPolicyMessage = signal('');
 
@@ -129,8 +132,20 @@ export class Carrier {
     private readonly router: Router,
     private readonly authService: AuthService,
     private readonly carrierService: CarrierService,
+    private readonly http: HttpClient,
   ) {
-    this.restorePendingBooking();
+    void this.prefillPickupAddress();
+  }
+
+  private async prefillPickupAddress(): Promise<void> {
+    const userId = this.authService.user()?.id;
+    if (!userId || this.form.controls.pickup.value.trim()) return;
+
+    const profile = await this.authService.getProfile(userId);
+    if (!profile) return;
+
+    const pickup = [profile.address, profile.location].filter(Boolean).join(', ');
+    if (pickup) this.form.controls.pickup.setValue(pickup);
   }
 
   protected get providers(): Provider[] {
@@ -181,8 +196,6 @@ export class Carrier {
 
   protected selectProvider(provider: Provider): void {
     if (!this.authService.isLoggedIn()) {
-      sessionStorage.setItem('liftmate-pending-provider', JSON.stringify(provider));
-      sessionStorage.setItem('liftmate-pending-request', JSON.stringify(this.form.getRawValue()));
       this.router.navigate(['/login'], { queryParams: { returnUrl: '/carrier' } });
       return;
     }
@@ -207,13 +220,46 @@ export class Carrier {
     this.requestStep.set(3);
   }
 
-  protected confirmProviderBooking(): void {
+  protected async confirmProviderBooking(): Promise<void> {
     if (this.bookingStatus() !== 'Request Sent') return;
-    if (!this.selectedProvider()) return;
+    const provider = this.selectedProvider();
+    if (!provider) return;
     if (this.paymentProcessing()) return;
 
     this.paymentProcessing.set(true);
     this.paymentSuccess.set(false);
+
+    const user = this.authService.user();
+    const payload = {
+      userId: user?.id,
+      providerId: provider.id,
+      form: {
+        category: this.form.controls.category.value,
+        description: this.form.controls.description.value,
+        weight: this.form.controls.weight.value,
+        items: this.form.controls.items.value,
+        pickup: this.form.controls.pickup.value,
+        delivery: this.form.controls.delivery.value,
+        date: this.form.controls.date.value,
+        time: this.form.controls.time.value,
+        duration: this.form.controls.duration.value,
+        preferences: this.form.controls.preferences.value,
+        totalPrice: provider.price,
+        paymentMethod: this.paymentMethod(),
+      },
+    };
+
+    try {
+      const response = (await firstValueFrom(
+        this.http.post<{ _id: string }>(`${environment.apiUrl}/bookings/create`, payload),
+      )) as { _id: string };
+      this.lastBookingId.set(response._id);
+    } catch {
+      this.paymentProcessing.set(false);
+      this.paymentSuccess.set(false);
+      this.bookingStatus.set('Request Sent');
+      return;
+    }
 
     window.setTimeout(() => {
       this.paymentProcessing.set(false);
@@ -222,6 +268,8 @@ export class Carrier {
       window.setTimeout(() => {
         this.paymentSuccess.set(false);
         this.view.set('status');
+
+        this.router.navigate(['/dashboard'], { queryParams: { section: 'history' } });
       }, 2000);
     }, 2000);
   }
@@ -298,8 +346,33 @@ export class Carrier {
     this.rating.set(value);
   }
 
-  protected submitFeedback(): void {
-    if (this.rating() > 0 && this.review().trim()) this.feedbackSubmitted.set(true);
+  protected async submitFeedback(): Promise<void> {
+    if (this.rating() <= 0 || !this.review().trim()) return;
+
+    const user = this.authService.user();
+    const provider = this.selectedProvider();
+    const bookingId = this.lastBookingId();
+
+    if (!user?.id || !provider || !bookingId) {
+      this.feedbackSubmitted.set(true);
+      return;
+    }
+
+    try {
+      await firstValueFrom(
+        this.http.post(`${environment.apiUrl}/bookings/${bookingId}/reviews`, {
+          userId: user.id,
+          providerId: provider.id,
+          rating: this.rating(),
+          reviewText: this.review().trim(),
+        }),
+      );
+      this.feedbackSubmitted.set(true);
+      this.lastBookingId.set(null);
+      this.router.navigate(['/dashboard'], { queryParams: { section: 'history' } });
+    } catch {
+      this.feedbackSubmitted.set(true);
+    }
   }
 
   protected updateReview(event: Event): void {
@@ -350,24 +423,4 @@ export class Carrier {
     this.view.set(view);
   }
 
-  private restorePendingBooking(): void {
-    if (!this.authService.isLoggedIn()) return;
-
-    const storedProvider = sessionStorage.getItem('liftmate-pending-provider');
-    const storedRequest = sessionStorage.getItem('liftmate-pending-request');
-    if (!storedProvider || !storedRequest) return;
-
-    try {
-      const provider = JSON.parse(storedProvider) as Provider;
-      const request = JSON.parse(storedRequest) as Partial<BookingValues>;
-      this.form.patchValue(request);
-      this.selectedProvider.set(provider);
-      this.view.set('summary');
-      sessionStorage.removeItem('liftmate-pending-provider');
-      sessionStorage.removeItem('liftmate-pending-request');
-    } catch {
-      sessionStorage.removeItem('liftmate-pending-provider');
-      sessionStorage.removeItem('liftmate-pending-request');
-    }
-  }
 }

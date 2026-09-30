@@ -29,21 +29,25 @@
           >
         </li>
 
-        <li class="nav-item">
-          <a class="nav-link px-3" routerLink="/carrier" routerLinkActive="active"
-            >Request Carrier</a
-          >
-        </li>
+        @if (authService.isLoggedIn() && authService.isCustomer()) {
+          <li class="nav-item">
+            <a class="nav-link px-3" routerLink="/carrier" routerLinkActive="active"
+              >Request Carrier</a
+            >
+          </li>
+        }
 
-        <li class="nav-item">
-          <a class="nav-link px-3" routerLink="/provider" routerLinkActive="active"
-            >Provider Workspace</a
-          >
-        </li>
+        @if (authService.isLoggedIn() && authService.isWorker()) {
+          <li class="nav-item">
+            <a class="nav-link px-3" routerLink="/provider" routerLinkActive="active"
+              >Worker Workspace</a
+            >
+          </li>
+        }
 
         @if (authService.isLoggedIn()) {
           <li class="nav-item">
-            <a class="nav-link px-3" routerLink="/dashboard" routerLinkActive="active">
+            <a class="nav-link px-3" [routerLink]="authService.homeUrl()" routerLinkActive="active">
               <span class="material-icons align-middle fs-5 me-1">dashboard</span>Dashboard
             </a>
           </li>

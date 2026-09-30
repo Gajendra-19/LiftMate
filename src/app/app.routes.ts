@@ -1,5 +1,5 @@
 import { inject } from '@angular/core';
-import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, Routes } from '@angular/router';
+import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, Routes, CanActivateFn } from '@angular/router';
 import { AuthService } from './auth.service';
 import { Carrier } from './carrier/carrier';
 import { Dashboard } from './dashboard/dashboard';
@@ -9,32 +9,34 @@ import { NotFound } from './not-found/not-found';
 import { ProviderDashboard } from './provider-dashboard/provider-dashboard';
 import { Signup } from './signup/signup';
 
-const authGuard = (_route: ActivatedRouteSnapshot, state: RouterStateSnapshot) => {
+const roleGuard = (role: 'customer' | 'worker'): CanActivateFn => (_route, state) => {
   const authService = inject(AuthService);
   const router = inject(Router);
-  return (
-    authService.isLoggedIn() ||
-    router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } })
-  );
+  if (!authService.isLoggedIn()) {
+    return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
+  }
+  return (role === 'customer' ? authService.isCustomer() : authService.isWorker())
+    ? true
+    : router.parseUrl(authService.homeUrl());
 };
 
-const landingGuard = () => {
-  return true;
+const guestGuard: CanActivateFn = () => {
+  const authService = inject(AuthService);
+  return authService.isLoggedIn() ? inject(Router).parseUrl(authService.homeUrl()) : true;
 };
 
 export const routes: Routes = [
-  { path: '', pathMatch: 'full', component: Landing, canActivate: [landingGuard] },
-  { path: 'login', component: Login },
-  { path: 'signup', component: Signup },
-  { path: 'carrier', component: Carrier, canActivate: [authGuard] },
-  { path: 'provider', component: ProviderDashboard, canActivate: [authGuard] },
+  { path: '', pathMatch: 'full', component: Landing, canActivate: [guestGuard] },
+  { path: 'login', component: Login, canActivate: [guestGuard] },
+  { path: 'signup', component: Signup, canActivate: [guestGuard] },
+  { path: 'carrier', component: Carrier, canActivate: [roleGuard('customer')] },
+  { path: 'provider', component: ProviderDashboard, canActivate: [roleGuard('worker')] },
   {
     path: 'dashboard',
-    component: Dashboard,
-    canActivate: [authGuard],
     children: [
-      { path: 'carrier', component: Carrier, canActivate: [authGuard] },
-      { path: 'provider', component: ProviderDashboard, canActivate: [authGuard] },
+      { path: '', pathMatch: 'full', component: Dashboard, canActivate: [roleGuard('customer')] },
+      { path: 'carrier', component: Carrier, canActivate: [roleGuard('customer')] },
+      { path: 'provider', component: ProviderDashboard, canActivate: [roleGuard('worker')] },
     ],
   },
   { path: 'not-found', component: NotFound },

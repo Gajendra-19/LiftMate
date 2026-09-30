@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { AuthService } from '../auth.service';
+import { AuthService, WorkerProfilePayload } from '../auth.service';
 
 @Component({
   selector: 'app-signup',
@@ -16,6 +16,17 @@ export class Signup {
   email = '';
   password = '';
   confirmPassword = '';
+  role: 'customer' | 'worker' = 'customer';
+  workerProfile: WorkerProfilePayload = {
+    kind: 'Individual',
+    phone: null,
+    teamName: '',
+    teamSize: 2,
+    serviceArea: '',
+    equipment: '',
+    capacity: 0,
+    rate: 0,
+  };
 
   showPassword = signal(false);
   showConfirmPassword = signal(false);
@@ -81,14 +92,32 @@ export class Signup {
       return;
     }
 
+    if (this.role === 'worker') {
+      const workerProfile = this.workerProfile;
+      if (
+        !workerProfile.phone ||
+        (workerProfile.kind === 'Team' &&
+          (!workerProfile.teamName.trim() || workerProfile.teamSize < 2 || workerProfile.teamSize > 5))
+      ) {
+        this.toastr.error('Please complete the worker account details before continuing.');
+        return;
+      }
+    }
+
     this.loading.set(true);
 
     try {
-      const success = await this.authService.register(trimmedName, trimmedEmail, this.password);
+      const success = await this.authService.register(
+        trimmedName,
+        trimmedEmail,
+        this.password,
+        this.role,
+        this.role === 'worker' ? this.workerProfile : undefined,
+      );
 
       if (success) {
         this.toastr.success('Registration successful!');
-        this.router.navigateByUrl(this.returnUrl);
+        this.router.navigateByUrl(this.authService.resolveReturnUrl(this.returnUrl));
       } else {
         this.toastr.error('User already exists or registration failed.');
       }

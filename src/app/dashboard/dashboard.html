@@ -37,22 +37,25 @@
       [class.mobile-open]="menuOpen()"
       aria-label="Dashboard navigation"
     >
-      <a
-        routerLink="/dashboard/provider"
-        routerLinkActive="active"
-        [routerLinkActiveOptions]="{ exact: true }"
-      >
-        <span class="material-icons">groups</span>
-        <span class="nav-label">Become a LiftMate</span>
-      </a>
-      <button
-        type="button"
-        [class.active]="section() === 'overview' && !childRouteActive()"
-        (click)="setSection('overview')"
-      >
-        <span class="material-icons">local_shipping</span>
-        <span class="nav-label">Request LiftMate</span>
-      </button>
+      @if (authService.isWorker()) {
+        <a
+          routerLink="/provider"
+          routerLinkActive="active"
+          [routerLinkActiveOptions]="{ exact: true }"
+        >
+          <span class="material-icons">groups</span>
+          <span class="nav-label">Worker dashboard</span>
+        </a>
+      } @else {
+        <button
+          type="button"
+          [class.active]="section() === 'overview' && !childRouteActive()"
+          (click)="setSection('overview')"
+        >
+          <span class="material-icons">local_shipping</span>
+          <span class="nav-label">Request LiftMate</span>
+        </button>
+      }
       <button
         type="button"
         [class.active]="section() === 'history'"
@@ -94,31 +97,20 @@
             Request a LiftMate
           </button>
         </div>
-        @if (hasPendingRequest) {
-          <div class="pending-banner">
-            <div>
-              <strong>Your request is ready to continue</strong>
-              <p class="mb-0 text-secondary">You selected a LiftMate before signing in.</p>
-            </div>
-            <button class="btn btn-primary" type="button" (click)="continueRequest()">
-              Continue request
-            </button>
-          </div>
-        }
         <div class="dashboard-grid">
           <article class="metric-card">
             <span>Active requests</span>
-            <strong>{{ hasPendingRequest ? 1 : 0 }}</strong>
+            <strong>{{ dashboardSummary().activeRequests }}</strong>
             <small>Requests awaiting a provider</small>
           </article>
           <article class="metric-card">
             <span>Completed jobs</span>
-            <strong>8</strong>
+            <strong>{{ dashboardSummary().completedJobs }}</strong>
             <small>Your LiftMate history</small>
           </article>
           <article class="metric-card">
             <span>Saved providers</span>
-            <strong>3</strong>
+            <strong>{{ dashboardSummary().savedProviders }}</strong>
             <small>Trusted for your next move</small>
           </article>
         </div>
@@ -132,15 +124,69 @@
               View history
             </button>
           </div>
-          <div class="activity-row">
-            <span class="activity-icon material-icons">check_circle</span>
-            <div>
-              <strong>Office furniture delivery</strong>
-              <small>Completed · Andheri East to Powai</small>
+          @for (activity of dashboardSummary().recentActivities; track activity._id) {
+            <button class="activity-row activity-button" type="button" (click)="selectBooking(activity)">
+              <span class="activity-icon material-icons">check_circle</span>
+              <div>
+                <strong>{{ activity.category || 'LiftMate service' }}</strong>
+                <small>
+                  {{ activity.providerId?.name || 'LiftMate team' }} · {{ activity.status }} ·
+                  {{ formatDate(activity.bookingDate || activity.createdAt) }}
+                </small>
+              </div>
+              <span class="activity-price">{{ formatPrice(activity.totalPrice || 0) }}</span>
+            </button>
+          } @empty {
+            <div class="activity-row">
+              <span class="activity-icon material-icons">info</span>
+              <div>
+                <strong>No recent bookings yet</strong>
+                <small>Your booking history will appear here once you place a request.</small>
+              </div>
             </div>
-            <span class="activity-price">₹450</span>
-          </div>
+          }
         </section>
+        @if (selectedBooking(); as booking) {
+          <section class="booking-summary-panel" aria-label="Request summary">
+            <div class="d-flex justify-content-between align-items-start gap-3">
+              <div>
+                <p class="eyebrow mb-1">Request summary</p>
+                <h2 class="h4 mb-1">{{ booking.category || 'LiftMate request' }}</h2>
+                <p class="text-secondary mb-0">{{ booking.description }}</p>
+              </div>
+              <button class="btn btn-sm btn-outline-secondary" type="button" (click)="closeBookingSummary()">Close</button>
+            </div>
+            <div class="booking-summary-grid">
+              <div><small>Status</small><strong>{{ booking.status }}</strong></div>
+              <div><small>Worker</small><strong>{{ booking.providerId?.name || 'Awaiting assignment' }}</strong></div>
+              <div><small>Pickup</small><strong>{{ booking.pickupLocation }}</strong></div>
+              <div><small>Drop-off</small><strong>{{ booking.deliveryLocation }}</strong></div>
+              <div><small>Schedule</small><strong>{{ booking.bookingDate }} · {{ booking.bookingTime }}</strong></div>
+              <div><small>Load</small><strong>{{ booking.weight || 0 }} kg · {{ booking.items || 0 }} items</strong></div>
+              <div><small>Payment</small><strong>{{ formatPrice(booking.totalPrice || 0) }} · {{ booking.paymentMethod || 'card' }}</strong></div>
+              <div><small>Preferences</small><strong>{{ booking.preferences || 'None added' }}</strong></div>
+            </div>
+            @if (booking.status === 'Completed') {
+              <div class="review-panel mt-4">
+                <p class="eyebrow mb-1">Completed job</p>
+                @if (reviewSubmittedFor() === booking._id) {
+                  <p class="text-success mb-0">Thank you. Your review was sent to the worker.</p>
+                } @else {
+                  <h3 class="h5 mb-3">Review {{ booking.providerId?.name || 'your worker' }}</h3>
+                  <div class="d-flex gap-2 mb-3" aria-label="Worker rating">
+                    @for (star of [1, 2, 3, 4, 5]; track star) {
+                      <button class="btn btn-outline-warning" type="button" [class.active]="star <= reviewRating()" [attr.aria-label]="star + ' stars'" (click)="reviewRating.set(star)">★</button>
+                    }
+                  </div>
+                  <textarea class="form-control mb-3" rows="3" placeholder="Share your experience" [ngModel]="reviewText()" (ngModelChange)="reviewText.set($event)"></textarea>
+                  <button class="btn btn-primary" type="button" [disabled]="reviewRating() === 0 || !reviewText().trim() || reviewSaving()" (click)="submitBookingReview(booking)">
+                    {{ reviewSaving() ? 'Sending...' : 'Send review' }}
+                  </button>
+                }
+              </div>
+            }
+          </section>
+        }
       } @else if (section() === 'history') {
         <div class="content-heading">
           <div>
@@ -153,23 +199,69 @@
           </button>
         </div>
         <section class="recent-panel">
-          <div class="activity-row">
-            <span class="activity-icon material-icons">check_circle</span>
-            <div>
-              <strong>Office furniture delivery</strong>
-              <small>Rahul Kumar · Completed · 18 Sep 2026</small>
+          @for (activity of dashboardSummary().recentActivities; track activity._id) {
+            <button class="activity-row activity-button" type="button" (click)="selectBooking(activity)">
+              <span class="activity-icon material-icons">check_circle</span>
+              <div>
+                <strong>{{ activity.category || 'LiftMate service' }}</strong>
+                <small>
+                  {{ activity.providerId?.name || 'LiftMate team' }} · {{ activity.status }} ·
+                  {{ formatDate(activity.bookingDate || activity.createdAt) }}
+                </small>
+              </div>
+              <span class="activity-price">{{ formatPrice(activity.totalPrice || 0) }}</span>
+            </button>
+          } @empty {
+            <div class="activity-row">
+              <span class="activity-icon material-icons">info</span>
+              <div>
+                <strong>No booking history found</strong>
+                <small>Your past bookings will show up here.</small>
+              </div>
             </div>
-            <span class="activity-price">₹450</span>
-          </div>
-          <div class="activity-row">
-            <span class="activity-icon material-icons">check_circle</span>
-            <div>
-              <strong>Home appliance move</strong>
-              <small>Sameer Logistics · Completed · 04 Sep 2026</small>
-            </div>
-            <span class="activity-price">₹1,450</span>
-          </div>
+          }
         </section>
+        @if (selectedBooking(); as booking) {
+          <section class="booking-summary-panel" aria-label="Request summary">
+            <div class="d-flex justify-content-between align-items-start gap-3">
+              <div>
+                <p class="eyebrow mb-1">Request summary</p>
+                <h2 class="h4 mb-1">{{ booking.category || 'LiftMate request' }}</h2>
+                <p class="text-secondary mb-0">{{ booking.description }}</p>
+              </div>
+              <button class="btn btn-sm btn-outline-secondary" type="button" (click)="closeBookingSummary()">Close</button>
+            </div>
+            <div class="booking-summary-grid">
+              <div><small>Status</small><strong>{{ booking.status }}</strong></div>
+              <div><small>Worker</small><strong>{{ booking.providerId?.name || 'Awaiting assignment' }}</strong></div>
+              <div><small>Pickup</small><strong>{{ booking.pickupLocation }}</strong></div>
+              <div><small>Drop-off</small><strong>{{ booking.deliveryLocation }}</strong></div>
+              <div><small>Schedule</small><strong>{{ booking.bookingDate }} · {{ booking.bookingTime }}</strong></div>
+              <div><small>Load</small><strong>{{ booking.weight || 0 }} kg · {{ booking.items || 0 }} items</strong></div>
+              <div><small>Payment</small><strong>{{ formatPrice(booking.totalPrice || 0) }} · {{ booking.paymentMethod || 'card' }}</strong></div>
+              <div><small>Preferences</small><strong>{{ booking.preferences || 'None added' }}</strong></div>
+            </div>
+            @if (booking.status === 'Completed') {
+              <div class="review-panel mt-4">
+                <p class="eyebrow mb-1">Completed job</p>
+                @if (reviewSubmittedFor() === booking._id) {
+                  <p class="text-success mb-0">Thank you. Your review was sent to the worker.</p>
+                } @else {
+                  <h3 class="h5 mb-3">Review {{ booking.providerId?.name || 'your worker' }}</h3>
+                  <div class="d-flex gap-2 mb-3" aria-label="Worker rating">
+                    @for (star of [1, 2, 3, 4, 5]; track star) {
+                      <button class="btn btn-outline-warning" type="button" [class.active]="star <= reviewRating()" [attr.aria-label]="star + ' stars'" (click)="reviewRating.set(star)">★</button>
+                    }
+                  </div>
+                  <textarea class="form-control mb-3" rows="3" placeholder="Share your experience" [ngModel]="reviewText()" (ngModelChange)="reviewText.set($event)"></textarea>
+                  <button class="btn btn-primary" type="button" [disabled]="reviewRating() === 0 || !reviewText().trim() || reviewSaving()" (click)="submitBookingReview(booking)">
+                    {{ reviewSaving() ? 'Sending...' : 'Send review' }}
+                  </button>
+                }
+              </div>
+            }
+          </section>
+        }
       } @else {
         <div class="content-heading">
           <div>
@@ -181,12 +273,22 @@
         <section class="settings-panel">
           <label>
             Full name
-            <input class="form-control" [value]="authService.user()?.name" readonly />
+            <input class="form-control" name="customerName" [(ngModel)]="customerName" required />
           </label>
           <label>
-            Email address
-            <input class="form-control" [value]="authService.user()?.email" readonly />
+            Location
+            <input class="form-control" name="customerLocation" [(ngModel)]="customerLocation" placeholder="e.g. Mumbai" required />
           </label>
+          <label>
+            Default address for pickup
+            <textarea class="form-control" name="customerAddress" [(ngModel)]="customerAddress" rows="3" placeholder="Enter your default pickup address" required></textarea>
+          </label>
+          <button class="btn btn-primary" type="button" (click)="saveCustomerProfile()" [disabled]="profileSaving()">
+            {{ profileSaving() ? 'Saving...' : 'Save profile' }}
+          </button>
+          @if (profileMessage()) {
+            <small class="profile-message">{{ profileMessage() }}</small>
+          }
           <label class="form-check-label">
             <input class="form-check-input" type="checkbox" checked />
             Send booking updates by email
