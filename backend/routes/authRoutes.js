@@ -114,7 +114,8 @@ router.post('/signup', async (req, res) => {
       token: issueToken(user),
     });
   } catch (error) {
-    return res.status(500).json({ message: 'Signup failed', error: error.message });
+    console.error('Signup failed:', error);
+    return res.status(500).json({ message: 'Signup failed' });
   }
 });
 
@@ -151,7 +152,8 @@ router.post('/login', async (req, res) => {
       token: issueToken(user),
     });
   } catch (error) {
-    return res.status(500).json({ message: 'Login failed', error: error.message });
+    console.error('Login failed:', error);
+    return res.status(500).json({ message: 'Login failed' });
   }
 });
 
@@ -161,7 +163,8 @@ router.get('/profile/:userId', requireAuth, requireOwnership(), async (req, res)
     if (!user) return res.status(404).json({ message: 'User not found' });
     return res.json({ ...user, _id: String(user._id) });
   } catch (error) {
-    return res.status(500).json({ message: 'Failed to fetch profile', error: error.message });
+    console.error('Failed to fetch profile:', error);
+    return res.status(500).json({ message: 'Failed to fetch profile' });
   }
 });
 
@@ -182,7 +185,8 @@ router.patch('/profile/:userId', requireAuth, requireOwnership(), async (req, re
     if (!user) return res.status(404).json({ message: 'User not found' });
     return res.json({ ...user, _id: String(user._id) });
   } catch (error) {
-    return res.status(500).json({ message: 'Failed to update profile', error: error.message });
+    console.error('Failed to update profile:', error);
+    return res.status(500).json({ message: 'Failed to update profile' });
   }
 });
 

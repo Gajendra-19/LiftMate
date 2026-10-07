@@ -72,7 +72,8 @@ router.get('/provider/:userId', requireAuth, requireRole('worker'), requireOwner
       })),
     );
   } catch (error) {
-    return res.status(500).json({ message: 'Failed to load worker requests', error: error.message });
+    console.error('Failed to load worker requests:', error);
+    return res.status(500).json({ message: 'Failed to load worker requests' });
   }
 });
 
@@ -102,7 +103,8 @@ router.get('/', requireAuth, async (req, res) => {
         : null,
     })));
   } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch bookings', error: error.message });
+    console.error('Failed to fetch bookings:', error);
+    res.status(500).json({ message: 'Failed to fetch bookings' });
   }
 });
 
@@ -130,7 +132,8 @@ router.get('/user/:userId', requireAuth, requireRole('customer'), requireOwnersh
 
     res.json(normalized);
   } catch (error) {
-    res.status(500).json({ message: 'Failed to load booking history', error: error.message });
+    console.error('Failed to load booking history:', error);
+    res.status(500).json({ message: 'Failed to load booking history' });
   }
 });
 
@@ -160,7 +163,8 @@ router.get('/:id([a-fA-F0-9]{24})', requireAuth, async (req, res) => {
         : null,
     });
   } catch (error) {
-    return res.status(500).json({ message: 'Failed to get booking', error: error.message });
+    console.error('Failed to get booking:', error);
+    return res.status(500).json({ message: 'Failed to get booking' });
   }
 });
 
@@ -218,7 +222,8 @@ router.post('/create', requireAuth, requireRole('customer'), async (req, res) =>
       paymentStatus: payment.status,
     });
   } catch (error) {
-    return res.status(500).json({ message: 'Booking creation failed', error: error.message });
+    console.error('Booking creation failed:', error);
+    return res.status(500).json({ message: 'Booking creation failed' });
   }
 });
 
@@ -253,7 +258,8 @@ router.put('/reviews/:id', requireAuth, requireRole('customer'), async (req, res
     await recalculateProviderRating(provider);
     return res.json(review);
   } catch (error) {
-    return res.status(500).json({ message: 'Review update failed', error: error.message });
+    console.error('Review update failed:', error);
+    return res.status(500).json({ message: 'Review update failed' });
   }
 });
 
@@ -280,7 +286,8 @@ router.put('/:id', requireAuth, requireRole('worker'), async (req, res) => {
     await booking.save();
     return res.json(booking);
   } catch (error) {
-    return res.status(500).json({ message: 'Booking update failed', error: error.message });
+    console.error('Booking update failed:', error);
+    return res.status(500).json({ message: 'Booking update failed' });
   }
 });
 
@@ -298,7 +305,8 @@ router.delete('/reviews/:id', requireAuth, requireRole('customer'), async (req, 
     await recalculateProviderRating(provider);
     return res.json({ message: 'Review deleted successfully', id: req.params.id });
   } catch (error) {
-    return res.status(500).json({ message: 'Review delete failed', error: error.message });
+    console.error('Review delete failed:', error);
+    return res.status(500).json({ message: 'Review delete failed' });
   }
 });
 
@@ -317,7 +325,8 @@ router.delete('/:id', requireAuth, async (req, res) => {
     await booking.save();
     return res.json({ message: 'Booking cancelled successfully', id: req.params.id });
   } catch (error) {
-    return res.status(500).json({ message: 'Booking delete failed', error: error.message });
+    console.error('Booking delete failed:', error);
+    return res.status(500).json({ message: 'Booking delete failed' });
   }
 });
 
@@ -375,7 +384,8 @@ router.post('/:bookingId/reviews', requireAuth, requireRole('customer'), async (
       reviewText: review.reviewText,
     });
   } catch (error) {
-    return res.status(500).json({ message: 'Review save failed', error: error.message });
+    console.error('Review save failed:', error);
+    return res.status(500).json({ message: 'Review save failed' });
   }
 });
 
@@ -390,7 +400,8 @@ router.get('/:bookingId/reviews', async (req, res) => {
       providerId: review.providerId?.toString?.() ?? review.providerId,
     })));
   } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch reviews', error: error.message });
+    console.error('Failed to fetch reviews:', error);
+    res.status(500).json({ message: 'Failed to fetch reviews' });
   }
 });
 

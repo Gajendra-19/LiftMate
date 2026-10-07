@@ -32,7 +32,8 @@ router.get('/', async (req, res) => {
       })),
     );
   } catch (error) {
-    res.status(500).json({ message: 'Failed to fetch providers', error: error.message });
+    console.error('Failed to fetch providers:', error);
+    res.status(500).json({ message: 'Failed to fetch providers' });
   }
 });
 
@@ -56,7 +57,8 @@ router.get('/profile/:userId', requireAuth, requireRole('worker'), requireOwners
       teamMembers: Array.isArray(provider.teamMembers) ? provider.teamMembers : [],
     });
   } catch (error) {
-    return res.status(500).json({ message: 'Failed to fetch worker profile', error: error.message });
+    console.error('Failed to fetch worker profile:', error);
+    return res.status(500).json({ message: 'Failed to fetch worker profile' });
   }
 });
 
@@ -103,7 +105,8 @@ router.post('/profile', requireAuth, requireRole('worker'), async (req, res) => 
       equipment: Array.isArray(saved.equipment) ? saved.equipment : [],
     });
   } catch (error) {
-    return res.status(500).json({ message: 'Failed to save worker profile', error: error.message });
+    console.error('Failed to save worker profile:', error);
+    return res.status(500).json({ message: 'Failed to save worker profile' });
   }
 });
 
@@ -119,7 +122,8 @@ router.patch('/profile/:userId/availability', requireAuth, requireRole('worker')
     if (!provider) return res.status(404).json({ message: 'Worker profile not found' });
     return res.json({ available: provider.available });
   } catch (error) {
-    return res.status(500).json({ message: 'Failed to update availability', error: error.message });
+    console.error('Failed to update availability:', error);
+    return res.status(500).json({ message: 'Failed to update availability' });
   }
 });
 
@@ -153,7 +157,8 @@ router.patch('/profile/:userId/settings', requireAuth, requireRole('worker'), re
     if (!provider) return res.status(404).json({ message: 'Worker profile not found' });
     return res.json({ ...provider, id: String(provider._id), equipment });
   } catch (error) {
-    return res.status(500).json({ message: 'Failed to update worker settings', error: error.message });
+    console.error('Failed to update worker settings:', error);
+    return res.status(500).json({ message: 'Failed to update worker settings' });
   }
 });
 
@@ -177,7 +182,8 @@ router.get('/profile/:userId/reviews', requireAuth, requireRole('worker'), requi
       })),
     );
   } catch (error) {
-    return res.status(500).json({ message: 'Failed to fetch worker reviews', error: error.message });
+    console.error('Failed to fetch worker reviews:', error);
+    return res.status(500).json({ message: 'Failed to fetch worker reviews' });
   }
 });
 
