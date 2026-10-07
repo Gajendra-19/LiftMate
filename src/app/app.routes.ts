@@ -2,7 +2,7 @@ import { Routes } from '@angular/router';
 import { guestGuard, roleGuard } from './core/guards/auth.guards';
 import { Carrier } from './carrier/carrier';
 import { Dashboard } from './dashboard/dashboard';
-import { Landing } from './landing/landing';
+import { Landing } from './features/landing/landing';
 import { Login } from './Login/login';
 import { NotFound } from './not-found/not-found';
 import { ProviderDashboard } from './provider-dashboard/provider-dashboard';
