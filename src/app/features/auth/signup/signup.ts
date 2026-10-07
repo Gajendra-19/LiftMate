@@ -43,6 +43,7 @@ export class Signup {
   ) {
     const requestedUrl = this.route.snapshot.queryParamMap.get('returnUrl');
     this.returnUrl = requestedUrl?.startsWith('/') ? requestedUrl : '/dashboard';
+    this.role = this.returnUrl === '/provider' ? 'worker' : 'customer';
   }
 
   togglePasswordVisibility(): void {
@@ -94,11 +95,7 @@ export class Signup {
 
     if (this.role === 'worker') {
       const workerProfile = this.workerProfile;
-      if (
-        !workerProfile.phone ||
-        (workerProfile.kind === 'Team' &&
-          (!workerProfile.teamName.trim() || workerProfile.teamSize < 2 || workerProfile.teamSize > 5))
-      ) {
+      if (!workerProfile.phone) {
         this.toastr.error('Please complete the worker account details before continuing.');
         return;
       }

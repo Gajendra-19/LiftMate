@@ -20,6 +20,8 @@
 .status-badge {
   background: #e9ecef;
   color: #495057;
+  width: 36px;
+  height: 36px;
 }
 
 .status-item.done .status-badge {

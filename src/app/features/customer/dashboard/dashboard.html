@@ -89,11 +89,11 @@
           <div>
             <p class="eyebrow">Customer dashboard</p>
             <h1>Move your next load with confidence.</h1>
-            <p class="text-secondary">
+            <p class="text-secondary dashboard-description">
               Find reliable lifting help, manage requests, and keep every booking in one place.
             </p>
           </div>
-          <button class="btn btn-primary" type="button" (click)="continueRequest()">
+          <button class="btn btn-primary dashboard-primary" type="button" (click)="continueRequest()">
             Request a LiftMate
           </button>
         </div>
@@ -120,7 +120,7 @@
               <p class="eyebrow mb-1">Recent activity</p>
               <h2 class="h4 mb-0">Your LiftMate activity</h2>
             </div>
-            <button class="btn btn-link" type="button" (click)="setSection('history')">
+            <button class="btn btn-link dashboard-link" type="button" (click)="setSection('history')">
               View history
             </button>
           </div>
@@ -152,7 +152,7 @@
               <div>
                 <p class="eyebrow mb-1">Request summary</p>
                 <h2 class="h4 mb-1">{{ booking.category || 'LiftMate request' }}</h2>
-                <p class="text-secondary mb-0">{{ booking.description }}</p>
+                <p class="text-secondary dashboard-description mb-0">{{ booking.description }}</p>
               </div>
               <button class="btn btn-sm btn-outline-secondary" type="button" (click)="closeBookingSummary()">Close</button>
             </div>
@@ -179,7 +179,7 @@
                     }
                   </div>
                   <textarea class="form-control mb-3" rows="3" placeholder="Share your experience" [ngModel]="reviewText()" (ngModelChange)="reviewText.set($event)"></textarea>
-                  <button class="btn btn-primary" type="button" [disabled]="reviewRating() === 0 || !reviewText().trim() || reviewSaving()" (click)="submitBookingReview(booking)">
+                  <button class="btn btn-primary dashboard-primary" type="button" [disabled]="reviewRating() === 0 || !reviewText().trim() || reviewSaving()" (click)="submitBookingReview(booking)">
                     {{ reviewSaving() ? 'Sending...' : 'Send review' }}
                   </button>
                 }
@@ -192,9 +192,9 @@
           <div>
             <p class="eyebrow">Your activity</p>
             <h1>Booking history</h1>
-            <p class="text-secondary">Review your past LiftMate requests and payments.</p>
+            <p class="text-secondary dashboard-description">Review your past LiftMate requests and payments.</p>
           </div>
-          <button class="btn btn-primary" type="button" (click)="continueRequest()">
+          <button class="btn btn-primary dashboard-primary" type="button" (click)="continueRequest()">
             Request a LiftMate
           </button>
         </div>
@@ -227,7 +227,7 @@
               <div>
                 <p class="eyebrow mb-1">Request summary</p>
                 <h2 class="h4 mb-1">{{ booking.category || 'LiftMate request' }}</h2>
-                <p class="text-secondary mb-0">{{ booking.description }}</p>
+                <p class="text-secondary dashboard-description mb-0">{{ booking.description }}</p>
               </div>
               <button class="btn btn-sm btn-outline-secondary" type="button" (click)="closeBookingSummary()">Close</button>
             </div>
@@ -254,7 +254,7 @@
                     }
                   </div>
                   <textarea class="form-control mb-3" rows="3" placeholder="Share your experience" [ngModel]="reviewText()" (ngModelChange)="reviewText.set($event)"></textarea>
-                  <button class="btn btn-primary" type="button" [disabled]="reviewRating() === 0 || !reviewText().trim() || reviewSaving()" (click)="submitBookingReview(booking)">
+                  <button class="btn btn-primary dashboard-primary" type="button" [disabled]="reviewRating() === 0 || !reviewText().trim() || reviewSaving()" (click)="submitBookingReview(booking)">
                     {{ reviewSaving() ? 'Sending...' : 'Send review' }}
                   </button>
                 }
@@ -267,7 +267,7 @@
           <div>
             <p class="eyebrow">Account</p>
             <h1>Settings</h1>
-            <p class="text-secondary">Manage your customer profile and preferences.</p>
+            <p class="text-secondary dashboard-description">Manage your customer profile and preferences.</p>
           </div>
         </div>
         <section class="settings-panel">
@@ -283,7 +283,7 @@
             Default address for pickup
             <textarea class="form-control" name="customerAddress" [(ngModel)]="customerAddress" rows="3" placeholder="Enter your default pickup address" required></textarea>
           </label>
-          <button class="btn btn-primary" type="button" (click)="saveCustomerProfile()" [disabled]="profileSaving()">
+          <button class="btn btn-primary dashboard-primary" type="button" (click)="saveCustomerProfile()" [disabled]="profileSaving()">
             {{ profileSaving() ? 'Saving...' : 'Save profile' }}
           </button>
           @if (profileMessage()) {

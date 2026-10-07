@@ -1,8 +1,10 @@
 .signup-container {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
-  align-items: center;
+  align-items: stretch;
   justify-content: center;
+  overflow-y: auto;
   background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
   padding: 20px;
   font-family: 'Inter', sans-serif;
@@ -16,6 +18,7 @@
   padding: 40px;
   width: 100%;
   max-width: 450px;
+  margin-block: auto;
   backdrop-filter: blur(14px);
 }
 
@@ -34,17 +37,6 @@
 
 .form-group {
   margin-bottom: 20px;
-}
-
-.worker-onboarding-note {
-  background: rgba(56, 189, 248, 0.08);
-  border: 1px solid rgba(56, 189, 248, 0.2);
-  border-radius: 10px;
-  color: #cbd5e1;
-  font-size: 0.82rem;
-  line-height: 1.5;
-  margin: 0 0 20px;
-  padding: 10px 12px;
 }
 
 .form-group label {
@@ -89,8 +81,7 @@
 .form-group input:focus-visible,
 .eye-btn:focus-visible,
 .btn-signup:focus-visible,
-.login-text a:focus-visible,
-.signup-text a:focus-visible {
+.login-text a:focus-visible {
   outline: 2px solid #7dd3fc;
   outline-offset: 2px;
 }
@@ -104,7 +95,7 @@
 
 .form-group input.ng-invalid.ng-touched,
 .form-group input.ng-invalid.ng-dirty {
-  border-color: #fda4af !important;
+  border-color: #fda4af;
   box-shadow: 0 0 0 3px rgba(251, 113, 133, 0.12);
 }
 
@@ -154,43 +145,6 @@
 
 .error-message div {
   margin: 2px 0;
-}
-
-.error-box {
-  background-color: #f8d7da;
-  border: 1px solid #f5c6cb;
-  color: #721c24;
-  padding: 12px 15px;
-  border-radius: 5px;
-  margin-bottom: 20px;
-  font-size: 13px;
-}
-
-.terms-check {
-  display: flex;
-  align-items: flex-start;
-  font-size: 0.75rem;
-  color: #cbd5e1;
-  margin-bottom: 25px;
-  cursor: pointer;
-}
-
-.terms-check input[type='checkbox'] {
-  width: auto;
-  margin-right: 8px;
-  margin-top: 2px;
-  cursor: pointer;
-  accent-color: #38bdf8;
-}
-
-.terms-link {
-  color: #7dd3fc;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.terms-link:hover {
-  text-decoration: underline;
 }
 
 .btn-signup {

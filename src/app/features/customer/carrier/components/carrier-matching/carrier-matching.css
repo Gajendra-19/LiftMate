@@ -25,6 +25,20 @@
   flex-shrink: 0;
 }
 
+.provider-avatar {
+  width: 52px;
+  height: 52px;
+  font-size: 1.2rem;
+}
+
+.provider-card .flex-grow-1 {
+  min-width: 0;
+}
+
+.provider-card h2 {
+  overflow-wrap: anywhere;
+}
+
 .empty-state {
   min-height: 260px;
 }

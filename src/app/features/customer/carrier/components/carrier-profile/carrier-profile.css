@@ -11,6 +11,17 @@
   flex-shrink: 0;
 }
 
+.profile-avatar {
+  width: 64px;
+  height: 64px;
+  font-size: 1.5rem;
+}
+
+.profile-hero > div:last-child {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
 blockquote {
   margin: 0;
 }

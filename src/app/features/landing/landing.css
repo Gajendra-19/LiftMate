@@ -6,14 +6,30 @@
   font-family: 'Outfit', sans-serif;
 }
 
+
 .hero-section {
   background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 50%, #0f172a 100%);
   border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
+.hero-section p.lead.text-secondary-emphasis {
+  color: #fff3cd !important;
+}
+
+.hero-section .hero-stat-label {
+  color: #cbd5e1 !important;
+}
+
+.hero-badge {
+  max-width: 100%;
+  white-space: normal;
+  line-height: 1.4;
+}
+
 .gradient-text {
   background: linear-gradient(135deg, #38bdf8 0%, #818cf8 100%);
   -webkit-background-clip: text;
+  background-clip: text;
   -webkit-text-fill-color: transparent;
 }
 

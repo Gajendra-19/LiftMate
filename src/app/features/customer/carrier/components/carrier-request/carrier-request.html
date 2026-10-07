@@ -1,7 +1,6 @@
 <!-- Progress steps -->
 <div
   class="d-flex align-items-center w-100 step-steps mb-4"
-  style="max-width: 700px"
   aria-label="Booking progress"
 >
   <div class="d-flex flex-column align-items-center step-item">
@@ -41,7 +40,7 @@
 </div>
 
 <!-- Form card -->
-<div class="card shadow-sm border w-100 rounded-3" style="max-width: 700px">
+<div class="card shadow-sm border w-100 rounded-3 request-card">
   <div class="card-body p-4 p-md-5">
     <h1 class="h3 fw-bold mb-1 font-outfit">{{ stepLabel() }}</h1>
     <p class="text-secondary border-bottom pb-3 mb-4">
@@ -174,12 +173,11 @@
                         class="file-preview rounded"
                         [src]="selectedFile.previewUrl"
                         [alt]="'Preview of ' + selectedFile.file.name"
-                        style="width: 32px; height: 32px; object-fit: cover"
                       />
                     } @else {
                       <span class="material-icons text-danger">picture_as_pdf</span>
                     }
-                    <span class="file-name small text-truncate" style="max-width: 150px">{{
+                    <span class="file-name small text-truncate">{{
                       selectedFile.file.name
                     }}</span>
                     <button
