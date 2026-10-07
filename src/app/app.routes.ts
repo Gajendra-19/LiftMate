@@ -5,7 +5,7 @@ import { Dashboard } from './features/customer/dashboard/dashboard';
 import { Landing } from './features/landing/landing';
 import { Login } from './features/auth/login/login';
 import { NotFound } from './not-found/not-found';
-import { ProviderDashboard } from './provider-dashboard/provider-dashboard';
+import { ProviderDashboard } from './features/worker/provider-dashboard/provider-dashboard';
 import { Signup } from './features/auth/signup/signup';
 
 export const routes: Routes = [
