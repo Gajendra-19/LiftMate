@@ -19,15 +19,9 @@ const validatePassword = (password) => {
   return password.length >= 8 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /\d/.test(password);
 };
 
-const isBcryptHash = (value) => typeof value === 'string' && /^\$2[aby]\$/.test(value);
-
 const verifyPassword = async (inputPassword, storedPassword) => {
   if (!inputPassword || !storedPassword) return false;
-
-  const bcryptMatch = await bcrypt.compare(inputPassword, storedPassword).catch(() => false);
-  if (bcryptMatch) return true;
-
-  return storedPassword === inputPassword;
+  return bcrypt.compare(inputPassword, storedPassword);
 };
 
 const issueToken = (user) => jwt.sign(
@@ -147,11 +141,6 @@ router.post('/login', async (req, res) => {
 
     if (!passwordMatches) {
       return res.status(401).json({ message: 'Invalid email or password' });
-    }
-
-    if (!isBcryptHash(user.password) && user.password === password) {
-      user.password = await bcrypt.hash(password, 12);
-      await user.save();
     }
 
     return res.status(200).json({
