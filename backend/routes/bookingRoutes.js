@@ -7,6 +7,23 @@ const Provider = require('../models/Provider');
 const Review = require('../models/Review');
 const { requireAuth, requireRole, requireOwnership } = require('../middleware/auth');
 
+const bookingStatuses = [
+  'Request Sent',
+  'Accepted',
+  'On the Way',
+  'Arrived',
+  'Job Started',
+  'Completed',
+  'Cancelled',
+];
+const nextBookingStatus = {
+  'Request Sent': 'Accepted',
+  Accepted: 'On the Way',
+  'On the Way': 'Arrived',
+  Arrived: 'Job Started',
+  'Job Started': 'Completed',
+};
+
 const resolveProviderId = async (providerId) => {
   if (!providerId) return null;
 
@@ -247,7 +264,19 @@ router.put('/:id', requireAuth, requireRole('worker'), async (req, res) => {
     if (String(booking.providerId?.userId) !== String(req.auth.userId)) {
       return res.status(403).json({ message: 'You can only update your own bookings' });
     }
-    booking.status = req.body.status;
+
+    const status = req.body?.status;
+    if (!bookingStatuses.includes(status)) {
+      return res.status(400).json({ message: 'Invalid booking status' });
+    }
+    const canCancel = status === 'Cancelled' && !['Completed', 'Cancelled'].includes(booking.status);
+    if (status !== nextBookingStatus[booking.status] && !canCancel) {
+      return res.status(400).json({
+        message: `Invalid booking status transition from ${booking.status} to ${status}`,
+      });
+    }
+
+    booking.status = status;
     await booking.save();
     return res.json(booking);
   } catch (error) {
