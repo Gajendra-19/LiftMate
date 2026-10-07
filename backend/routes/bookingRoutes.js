@@ -22,6 +22,13 @@ const resolveProviderId = async (providerId) => {
   return String(provider._id);
 };
 
+const recalculateProviderRating = async (provider) => {
+  const ratingRows = await Review.find({ providerId: provider._id }).select('rating').lean();
+  const ratingTotal = ratingRows.reduce((total, row) => total + Number(row.rating || 0), 0);
+  provider.rating = ratingRows.length ? ratingTotal / ratingRows.length : 0;
+  await provider.save();
+};
+
 router.get('/provider/:userId', requireAuth, requireRole('worker'), requireOwnership(), async (req, res) => {
   try {
     const providerQuery = mongoose.isValidObjectId(req.params.userId)
@@ -193,6 +200,41 @@ router.post('/create', requireAuth, requireRole('customer'), async (req, res) =>
   }
 });
 
+router.put('/reviews/:id', requireAuth, requireRole('customer'), async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
+    if (!review) return res.status(404).json({ message: 'Review not found' });
+    if (String(review.userId) !== String(req.auth.userId)) {
+      return res.status(403).json({ message: 'You can only update your own reviews' });
+    }
+
+    const body = req.body && typeof req.body === 'object' && !Array.isArray(req.body) ? req.body : {};
+    const updates = {};
+    if (Object.prototype.hasOwnProperty.call(body, 'rating')) {
+      const rating = Number(body.rating);
+      if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+        return res.status(400).json({ message: 'Rating must be between 1 and 5' });
+      }
+      updates.rating = rating;
+    }
+    if (Object.prototype.hasOwnProperty.call(body, 'reviewText')) {
+      if (typeof body.reviewText !== 'string') {
+        return res.status(400).json({ message: 'Review text must be a string' });
+      }
+      updates.reviewText = body.reviewText;
+    }
+
+    const provider = await Provider.findById(review.providerId);
+    if (!provider) return res.status(404).json({ message: 'Provider not found' });
+    review.set(updates);
+    await review.save();
+    await recalculateProviderRating(provider);
+    return res.json(review);
+  } catch (error) {
+    return res.status(500).json({ message: 'Review update failed', error: error.message });
+  }
+});
+
 router.put('/:id', requireAuth, requireRole('worker'), async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id).populate('providerId', 'userId');
@@ -205,6 +247,24 @@ router.put('/:id', requireAuth, requireRole('worker'), async (req, res) => {
     return res.json(booking);
   } catch (error) {
     return res.status(500).json({ message: 'Booking update failed', error: error.message });
+  }
+});
+
+router.delete('/reviews/:id', requireAuth, requireRole('customer'), async (req, res) => {
+  try {
+    const review = await Review.findById(req.params.id);
+    if (!review) return res.status(404).json({ message: 'Review not found' });
+    if (String(review.userId) !== String(req.auth.userId)) {
+      return res.status(403).json({ message: 'You can only delete your own reviews' });
+    }
+
+    const provider = await Provider.findById(review.providerId);
+    if (!provider) return res.status(404).json({ message: 'Provider not found' });
+    await review.deleteOne();
+    await recalculateProviderRating(provider);
+    return res.json({ message: 'Review deleted successfully', id: req.params.id });
+  } catch (error) {
+    return res.status(500).json({ message: 'Review delete failed', error: error.message });
   }
 });
 
@@ -242,26 +302,34 @@ router.post('/:bookingId/reviews', requireAuth, requireRole('customer'), async (
       return res.status(400).json({ message: 'Invalid provider id' });
     }
 
+    const numericRating = Number(rating);
+    if (!Number.isInteger(numericRating) || numericRating < 1 || numericRating > 5) {
+      return res.status(400).json({ message: 'Rating must be between 1 and 5' });
+    }
+
+    if (booking.status !== 'Completed') {
+      return res.status(400).json({ message: 'You can only review completed bookings' });
+    }
+
+    if (await Review.exists({ bookingId })) {
+      return res.status(409).json({ message: 'A review already exists for this booking' });
+    }
+
+    const provider = await Provider.findById(resolvedProviderId);
+    if (!provider) return res.status(404).json({ message: 'Provider not found' });
+
     const review = await Review.create({
       bookingId,
       userId,
       providerId: resolvedProviderId,
-      rating: Number(rating),
+      rating: numericRating,
       reviewText: reviewText || '',
     });
 
-    const provider = await Provider.findById(resolvedProviderId);
-    if (!provider) {
-      return res.status(404).json({ message: 'Provider not found' });
-    }
-
     const reviews = Array.isArray(provider.reviews) ? provider.reviews : [];
     if (!reviews.includes(reviewText || '')) reviews.push(reviewText || '');
-    const ratingRows = await Review.find({ providerId: resolvedProviderId }).select('rating').lean();
-    const ratingTotal = ratingRows.reduce((total, row) => total + Number(row.rating || 0), 0);
     provider.reviews = reviews;
-    provider.rating = ratingRows.length ? ratingTotal / ratingRows.length : 0;
-    await provider.save();
+    await recalculateProviderRating(provider);
 
     return res.status(201).json({
       _id: review._id,
@@ -286,26 +354,6 @@ router.get('/:bookingId/reviews', async (req, res) => {
     })));
   } catch (error) {
     res.status(500).json({ message: 'Failed to fetch reviews', error: error.message });
-  }
-});
-
-router.put('/reviews/:id', async (req, res) => {
-  try {
-    const review = await Review.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!review) return res.status(404).json({ message: 'Review not found' });
-    return res.json(review);
-  } catch (error) {
-    return res.status(500).json({ message: 'Review update failed', error: error.message });
-  }
-});
-
-router.delete('/reviews/:id', async (req, res) => {
-  try {
-    const deleted = await Review.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: 'Review not found' });
-    return res.json({ message: 'Review deleted successfully', id: req.params.id });
-  } catch (error) {
-    return res.status(500).json({ message: 'Review delete failed', error: error.message });
   }
 });
 
