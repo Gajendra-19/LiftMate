@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
+const env = require('./env');
 
 const connectDB = async () => {
   try {
-    const conn = await mongoose.connect(process.env.MONGODB_URI, {
-      dbName: process.env.MONGODB_DB_NAME || 'liftmate',
+    const conn = await mongoose.connect(env.MONGODB_URI, {
+      dbName: env.MONGODB_DB_NAME,
     });
 
     console.log(`MongoDB connected: ${conn.connection.host}`);
