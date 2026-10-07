@@ -17,14 +17,18 @@ LiftMate is a BSc IT project for matching customers with moving and lifting prov
 │   ├── server.js
 │   ├── config/             # Database connection and environment access
 │   ├── controllers/        # HTTP request handlers
-│   ├── middleware/         # Authentication and middleware placeholder
+│   ├── middleware/         # Authentication middleware
 │   ├── models/             # Mongoose models
 │   ├── routes/             # API route wiring
-│   ├── scripts/            # Manual database seed script
 │   └── utils/              # Shared validation and response helpers
 ├── public/
 ├── src/
 │   ├── app/
+│   │   ├── app.config.ts
+│   │   ├── app.routes.ts
+│   │   ├── app.ts
+│   │   ├── app.html
+│   │   ├── app.css
 │   │   ├── core/
 │   │   │   ├── auth/
 │   │   │   └── guards/
@@ -39,9 +43,12 @@ LiftMate is a BSc IT project for matching customers with moving and lifting prov
 │   │   │   ├── not-found/
 │   │   │   └── worker/
 │   │   │       └── provider-dashboard/
-│   │   └── shared/
-│   │       └── navbar/
-│   └── environments/
+│   ├── environments/
+│   │   ├── environment.ts
+│   │   └── environment.prod.ts
+│   ├── index.html
+│   ├── main.ts
+│   └── styles.css
 ├── angular.json
 ├── package.json
 └── tsconfig*.json
@@ -83,14 +90,6 @@ ng serve
 ```
 
 The backend defaults to port `5000`; Angular defaults to port `4200`. The development frontend uses the local backend API.
-
-## Seed development data
-
-Run the seed script manually from the repository root after configuring the backend environment:
-
-```sh
-node backend/scripts/seed-demo.js
-```
 
 ## Tests and build
 
