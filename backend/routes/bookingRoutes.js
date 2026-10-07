@@ -161,6 +161,10 @@ router.post('/create', requireAuth, requireRole('customer'), async (req, res) =>
       return res.status(400).json({ message: 'Invalid provider id' });
     }
 
+    const provider = await Provider.findById(resolvedProviderId).select('price');
+    if (!provider) return res.status(404).json({ message: 'Provider not found' });
+    const totalPrice = provider.price;
+
     const booking = await Booking.create({
       userId,
       providerId: resolvedProviderId,
@@ -175,14 +179,15 @@ router.post('/create', requireAuth, requireRole('customer'), async (req, res) =>
       durationHours: Number(form.duration || 1),
       preferences: form.preferences || '',
       status: 'Request Sent',
-      totalPrice: Number(form.totalPrice || 0),
+      totalPrice,
       paymentMethod: form.paymentMethod || 'card',
     });
 
+    // Payment processing is simulated; success is a demo placeholder.
     const payment = await Payment.create({
       bookingId: booking._id,
       userId: booking.userId,
-      amount: booking.totalPrice,
+      amount: totalPrice,
       paymentMethod: booking.paymentMethod,
       status: 'success',
     });
