@@ -11,9 +11,9 @@ import {
 } from '@angular/router';
 import { filter, firstValueFrom } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { AuthService } from '../core/auth/auth.service';
+import { AuthService } from '../../../core/auth/auth.service';
 import { DashboardBooking, DashboardSummary, summarizeDashboardBookings } from './dashboard-data';
-import { environment } from '../../environments/environment';
+import { environment } from '../../../../environments/environment';
 
 type DashboardSection = 'overview' | 'history' | 'settings';
 

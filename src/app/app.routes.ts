@@ -1,7 +1,7 @@
 import { Routes } from '@angular/router';
 import { guestGuard, roleGuard } from './core/guards/auth.guards';
-import { Carrier } from './carrier/carrier';
-import { Dashboard } from './dashboard/dashboard';
+import { Carrier } from './features/customer/carrier/carrier';
+import { Dashboard } from './features/customer/dashboard/dashboard';
 import { Landing } from './features/landing/landing';
 import { Login } from './features/auth/login/login';
 import { NotFound } from './not-found/not-found';
