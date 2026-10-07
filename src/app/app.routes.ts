@@ -1,6 +1,5 @@
-import { inject } from '@angular/core';
-import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, Routes, CanActivateFn } from '@angular/router';
-import { AuthService } from './core/auth/auth.service';
+import { Routes } from '@angular/router';
+import { guestGuard, roleGuard } from './core/guards/auth.guards';
 import { Carrier } from './carrier/carrier';
 import { Dashboard } from './dashboard/dashboard';
 import { Landing } from './landing/landing';
@@ -8,22 +7,6 @@ import { Login } from './Login/login';
 import { NotFound } from './not-found/not-found';
 import { ProviderDashboard } from './provider-dashboard/provider-dashboard';
 import { Signup } from './signup/signup';
-
-const roleGuard = (role: 'customer' | 'worker'): CanActivateFn => (_route, state) => {
-  const authService = inject(AuthService);
-  const router = inject(Router);
-  if (!authService.isLoggedIn()) {
-    return router.createUrlTree(['/login'], { queryParams: { returnUrl: state.url } });
-  }
-  return (role === 'customer' ? authService.isCustomer() : authService.isWorker())
-    ? true
-    : router.parseUrl(authService.homeUrl());
-};
-
-const guestGuard: CanActivateFn = () => {
-  const authService = inject(AuthService);
-  return authService.isLoggedIn() ? inject(Router).parseUrl(authService.homeUrl()) : true;
-};
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', component: Landing, canActivate: [guestGuard] },
