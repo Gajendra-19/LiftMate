@@ -4,23 +4,7 @@ const Provider = require('../models/Provider');
 const Review = require('../models/Review');
 const User = require('../models/User');
 const { requireAuth, requireRole, requireOwnership } = require('../middleware/auth');
-
-const isValidPhone = (value) => Number.isInteger(Number(value)) && /^\d{10}$/.test(String(value));
-
-const normalizeEquipment = (value) => {
-  if (Array.isArray(value)) {
-    return value.map((item) => String(item).trim()).filter(Boolean);
-  }
-
-  if (typeof value === 'string') {
-    return value
-      .split(',')
-      .map((item) => item.trim())
-      .filter(Boolean);
-  }
-
-  return [];
-};
+const { isValidPhone, normalizeEquipment } = require('../utils/validation');
 
 router.get('/', async (req, res) => {
   try {

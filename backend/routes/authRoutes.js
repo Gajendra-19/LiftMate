@@ -5,19 +5,9 @@ const router = express.Router();
 const User = require('../models/User');
 const Provider = require('../models/Provider');
 const { requireAuth, requireOwnership, getSecret } = require('../middleware/auth');
+const { isValidPhone, sanitizeValue, validatePassword } = require('../utils/validation');
 
 const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
-const isValidPhone = (value) => Number.isInteger(Number(value)) && /^\d{10}$/.test(String(value));
-
-const sanitizeValue = (value) => {
-  if (typeof value !== 'string') return '';
-  return value.replace(/[<>]/g, '').trim();
-};
-
-const validatePassword = (password) => {
-  if (typeof password !== 'string') return false;
-  return password.length >= 8 && /[A-Z]/.test(password) && /[a-z]/.test(password) && /\d/.test(password);
-};
 
 const verifyPassword = async (inputPassword, storedPassword) => {
   if (!inputPassword || !storedPassword) return false;

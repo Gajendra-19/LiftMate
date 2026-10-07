@@ -6,6 +6,7 @@ const Payment = require('../models/Payment');
 const Provider = require('../models/Provider');
 const Review = require('../models/Review');
 const { requireAuth, requireRole, requireOwnership } = require('../middleware/auth');
+const { normalizeProviderBooking, normalizeCustomerBooking } = require('../utils/bookingNormalizers');
 
 const bookingStatuses = [
   'Request Sent',
@@ -62,15 +63,7 @@ router.get('/provider/:userId', requireAuth, requireRole('worker'), requireOwner
       .sort({ createdAt: -1 })
       .lean();
 
-    return res.json(
-      bookings.map((booking) => ({
-        ...booking,
-        _id: String(booking._id),
-        customerName: booking.userId?.name || 'Customer',
-        userId: booking.userId?._id?.toString?.() ?? booking.userId?.toString?.() ?? booking.userId,
-        providerId: String(provider._id),
-      })),
-    );
+    return res.json(bookings.map((booking) => normalizeProviderBooking(booking, provider)));
   } catch (error) {
     console.error('Failed to load worker requests:', error);
     return res.status(500).json({ message: 'Failed to load worker requests' });
@@ -89,19 +82,7 @@ router.get('/', requireAuth, async (req, res) => {
       .populate('userId', 'name')
       .sort({ createdAt: -1 })
       .lean();
-    res.json(bookings.map((booking) => ({
-      ...booking,
-      _id: booking._id.toString(),
-      customerName: booking.userId?.name || '',
-      userId: booking.userId?._id?.toString?.() ?? booking.userId?.toString?.() ?? booking.userId,
-      providerId: booking.providerId
-        ? {
-            _id: booking.providerId._id.toString(),
-            name: booking.providerId.name,
-            userId: booking.providerId.userId?.toString?.() ?? booking.providerId.userId,
-          }
-        : null,
-    })));
+    res.json(bookings.map(normalizeCustomerBooking));
   } catch (error) {
     console.error('Failed to fetch bookings:', error);
     res.status(500).json({ message: 'Failed to fetch bookings' });
@@ -116,19 +97,7 @@ router.get('/user/:userId', requireAuth, requireRole('customer'), requireOwnersh
       .sort({ createdAt: -1 })
       .lean();
 
-    const normalized = bookings.map((booking) => ({
-      ...booking,
-      _id: booking._id.toString(),
-      customerName: booking.userId?.name || '',
-      userId: booking.userId?._id?.toString?.() ?? booking.userId?.toString?.() ?? booking.userId,
-      providerId: booking.providerId
-        ? {
-            _id: booking.providerId._id.toString(),
-            name: booking.providerId.name,
-            userId: booking.providerId.userId?.toString?.() ?? booking.providerId.userId,
-          }
-        : null,
-    }));
+    const normalized = bookings.map(normalizeCustomerBooking);
 
     res.json(normalized);
   } catch (error) {
@@ -149,19 +118,7 @@ router.get('/:id([a-fA-F0-9]{24})', requireAuth, async (req, res) => {
       return res.status(403).json({ message: 'You can only access your own bookings' });
     }
 
-    return res.json({
-      ...booking,
-      _id: booking._id.toString(),
-      customerName: booking.userId?.name || '',
-      userId: booking.userId?._id?.toString?.() ?? booking.userId?.toString?.() ?? booking.userId,
-      providerId: booking.providerId
-        ? {
-            _id: booking.providerId._id.toString(),
-            name: booking.providerId.name,
-            userId: booking.providerId.userId?.toString?.() ?? booking.providerId.userId,
-          }
-        : null,
-    });
+    return res.json(normalizeCustomerBooking(booking));
   } catch (error) {
     console.error('Failed to get booking:', error);
     return res.status(500).json({ message: 'Failed to get booking' });
