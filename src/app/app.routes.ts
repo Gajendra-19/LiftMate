@@ -3,10 +3,10 @@ import { guestGuard, roleGuard } from './core/guards/auth.guards';
 import { Carrier } from './carrier/carrier';
 import { Dashboard } from './dashboard/dashboard';
 import { Landing } from './features/landing/landing';
-import { Login } from './Login/login';
+import { Login } from './features/auth/login/login';
 import { NotFound } from './not-found/not-found';
 import { ProviderDashboard } from './provider-dashboard/provider-dashboard';
-import { Signup } from './signup/signup';
+import { Signup } from './features/auth/signup/signup';
 
 export const routes: Routes = [
   { path: '', pathMatch: 'full', component: Landing, canActivate: [guestGuard] },
