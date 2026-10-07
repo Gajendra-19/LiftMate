@@ -4,7 +4,6 @@ const mongoose = require('mongoose');
 const Booking = require('../models/Booking');
 const Payment = require('../models/Payment');
 const Provider = require('../models/Provider');
-const User = require('../models/User');
 const Review = require('../models/Review');
 const { requireAuth, requireRole, requireOwnership } = require('../middleware/auth');
 
@@ -22,10 +21,6 @@ const resolveProviderId = async (providerId) => {
   if (!provider) return null;
   return String(provider._id);
 };
-
-router.get('/test', (req, res) => {
-  res.json({ message: 'Booking route working' });
-});
 
 router.get('/provider/:userId', requireAuth, requireRole('worker'), requireOwnership(), async (req, res) => {
   try {
@@ -115,7 +110,7 @@ router.get('/user/:userId', requireAuth, requireRole('customer'), requireOwnersh
   }
 });
 
-router.get('/:id', requireAuth, async (req, res) => {
+router.get('/:id([a-fA-F0-9]{24})', requireAuth, async (req, res) => {
   try {
     const booking = await Booking.findById(req.params.id)
       .populate('providerId', 'name userId')
@@ -311,101 +306,6 @@ router.delete('/reviews/:id', async (req, res) => {
     return res.json({ message: 'Review deleted successfully', id: req.params.id });
   } catch (error) {
     return res.status(500).json({ message: 'Review delete failed', error: error.message });
-  }
-});
-
-router.post('/seed-demo', async (req, res) => {
-  try {
-    const userEmail = 'tim@gmail.com';
-    const user = await User.findOneAndUpdate(
-      { email: userEmail },
-      {
-        $setOnInsert: {
-          name: 'Tim Parker',
-          email: userEmail,
-          password: '$2b$12$D9zV1I1TgW7i4YkW1G4Rteh9tthgE0gXE1Q7TYsM9lMRbKGa8YvTW',
-          role: 'customer',
-        },
-      },
-      { upsert: true, new: true },
-    );
-
-    const provider = await Provider.findOneAndUpdate(
-      { name: 'Rahul Kumar' },
-      {
-        $setOnInsert: {
-          userId: user._id,
-          name: 'Rahul Kumar',
-          kind: 'Individual',
-          avatar: 'RK',
-          rating: 4.8,
-          jobs: 124,
-          capacity: 100,
-          distance: 1.2,
-          available: true,
-          price: 450,
-          teamSize: 1,
-          equipment: ['Hand trolley', 'Rope set'],
-          serviceArea: 'Andheri, Mumbai',
-          reviews: ['Fast and careful with our office move.', 'Very professional and punctual.'],
-        },
-      },
-      { upsert: true, new: true },
-    );
-
-    const sampleBookings = [
-      {
-        userId: user._id,
-        providerId: provider._id,
-        category: 'Office furniture',
-        description: 'Office furniture delivery',
-        weight: 120,
-        items: 8,
-        pickupLocation: 'Andheri East, Mumbai',
-        deliveryLocation: 'Powai, Mumbai',
-        bookingDate: '2026-09-18',
-        bookingTime: '10:30',
-        durationHours: 3,
-        preferences: 'Handle with care',
-        status: 'Completed',
-        totalPrice: 450,
-        paymentMethod: 'card',
-      },
-      {
-        userId: user._id,
-        providerId: provider._id,
-        category: 'Home appliance',
-        description: 'Home appliance move',
-        weight: 200,
-        items: 5,
-        pickupLocation: 'Bandra West, Mumbai',
-        deliveryLocation: 'Dadar, Mumbai',
-        bookingDate: '2026-09-12',
-        bookingTime: '09:00',
-        durationHours: 4,
-        preferences: 'Need careful handling',
-        status: 'Request Sent',
-        totalPrice: 1200,
-        paymentMethod: 'wallet',
-      },
-    ];
-
-    const created = await Promise.all(
-      sampleBookings.map(async (booking) => {
-        const existing = await Booking.findOne({ userId: booking.userId, description: booking.description });
-        if (existing) return existing;
-        return Booking.create(booking);
-      }),
-    );
-
-    res.status(200).json({
-      message: 'Demo booking data seeded successfully',
-      userId: user._id.toString(),
-      providerId: provider._id.toString(),
-      createdCount: created.length,
-    });
-  } catch (error) {
-    res.status(500).json({ message: 'Failed to seed demo data', error: error.message });
   }
 });
 
