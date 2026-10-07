@@ -74,7 +74,6 @@ router.post('/profile', requireAuth, requireRole('worker'), async (req, res) => 
     }
 
     const payload = {
-      userId,
       name: String(profile.name || '').trim(),
       kind: profile.kind === 'Team' ? 'Team' : 'Individual',
       phone: Number(profile.phone || 0),
@@ -85,81 +84,13 @@ router.post('/profile', requireAuth, requireRole('worker'), async (req, res) => 
       capacity: Number(profile.capacity || 0),
       price: Number(profile.rate || profile.price || 0),
       available: true,
-      rating: Number(profile.rating || 0),
-      jobs: Number(profile.jobs || 0),
-      reviews: Array.isArray(profile.reviews) ? profile.reviews : [],
     };
 
     const saved = await Provider.findOneAndUpdate(
       { userId },
-      { $set: payload },
-      { upsert: true, new: true, setDefaultsOnInsert: true },
-    );
-    await User.findByIdAndUpdate(userId, { $set: { role: 'worker' } });
-
-    return res.status(201).json({
-      ...saved.toObject(),
-      id: String(saved._id),
-      userId: String(saved.userId),
-      equipment: Array.isArray(saved.equipment) ? saved.equipment : [],
-    });
-  } catch (error) {
-    return res.status(500).json({ message: 'Failed to save worker profile', error: error.message });
-  }
-});
-
-router.get('/profile/:userId', requireAuth, requireRole('worker'), requireOwnership(), async (req, res) => {
-  try {
-    const provider = await Provider.findOne({ userId: req.params.userId }).lean();
-    if (!provider) return res.status(404).json({ message: 'Worker profile not found' });
-
-    return res.json({
-      ...provider,
-      id: String(provider._id),
-      userId: String(provider.userId),
-      equipment: Array.isArray(provider.equipment) ? provider.equipment : [],
-      teamMembers: Array.isArray(provider.teamMembers) ? provider.teamMembers : [],
-    });
-  } catch (error) {
-    return res.status(500).json({ message: 'Failed to fetch worker profile', error: error.message });
-  }
-});
-
-router.post('/profile', requireAuth, requireRole('worker'), async (req, res) => {
-  try {
-    const userId = String(req.auth.userId);
-    const profile = req.body.profile || req.body;
-    if (!userId || !profile.name) {
-      return res.status(400).json({ message: 'Worker profile details are required' });
-    }
-
-    if (!isValidPhone(profile.phone)) {
-      return res.status(400).json({ message: 'Worker phone number must contain exactly 10 digits' });
-    }
-
-    const equipment = Array.isArray(profile.equipment)
-      ? profile.equipment
-      : String(profile.equipment || '')
-          .split(',')
-          .map((item) => item.trim())
-          .filter(Boolean);
-
-    const saved = await Provider.findOneAndUpdate(
-      { userId },
       {
-        $set: {
-          userId,
-          name: String(profile.name).trim(),
-          kind: profile.kind === 'Team' ? 'Team' : 'Individual',
-          phone: Number(profile.phone || 0),
-          teamName: String(profile.teamName || '').trim(),
-          teamSize: Number(profile.teamSize || 1),
-          serviceArea: String(profile.serviceArea || '').trim(),
-          equipment,
-          capacity: Number(profile.capacity || 0),
-          price: Number(profile.rate || profile.price || 0),
-          available: true,
-        },
+        $set: payload,
+        $setOnInsert: { userId, rating: 0, jobs: 0, reviews: [] },
       },
       { upsert: true, new: true, setDefaultsOnInsert: true },
     );
@@ -170,7 +101,6 @@ router.post('/profile', requireAuth, requireRole('worker'), async (req, res) => 
       id: String(saved._id),
       userId: String(saved.userId),
       equipment: Array.isArray(saved.equipment) ? saved.equipment : [],
-      teamMembers: Array.isArray(saved.teamMembers) ? saved.teamMembers : [],
     });
   } catch (error) {
     return res.status(500).json({ message: 'Failed to save worker profile', error: error.message });
