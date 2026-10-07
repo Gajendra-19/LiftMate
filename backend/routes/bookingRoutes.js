@@ -310,9 +310,12 @@ router.delete('/:id', requireAuth, async (req, res) => {
     if (String(booking.userId) !== String(req.auth.userId) && providerUserId !== String(req.auth.userId)) {
       return res.status(403).json({ message: 'You can only delete your own bookings' });
     }
-    const deleted = await Booking.findByIdAndDelete(req.params.id);
-    if (!deleted) return res.status(404).json({ message: 'Booking not found' });
-    return res.json({ message: 'Booking deleted successfully', id: req.params.id });
+    if (booking.status === 'Completed') {
+      return res.status(400).json({ message: 'Completed bookings cannot be cancelled' });
+    }
+    booking.status = 'Cancelled';
+    await booking.save();
+    return res.json({ message: 'Booking cancelled successfully', id: req.params.id });
   } catch (error) {
     return res.status(500).json({ message: 'Booking delete failed', error: error.message });
   }
