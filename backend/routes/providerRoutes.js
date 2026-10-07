@@ -27,8 +27,20 @@ router.get('/', async (req, res) => {
     const providers = await Provider.find({}).lean();
     res.json(
       providers.map((provider) => ({
-        ...provider,
-        id: provider._id ? String(provider._id) : provider.id,
+        id: String(provider._id),
+        name: provider.name,
+        kind: provider.kind,
+        avatar: provider.avatar,
+        rating: provider.rating,
+        jobs: provider.jobs,
+        capacity: provider.capacity,
+        distance: provider.distance,
+        available: provider.available,
+        price: provider.price,
+        teamSize: provider.teamSize,
+        equipment: Array.isArray(provider.equipment) ? provider.equipment : [],
+        serviceArea: provider.serviceArea,
+        reviews: Array.isArray(provider.reviews) ? provider.reviews : [],
       })),
     );
   } catch (error) {
