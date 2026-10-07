@@ -9,6 +9,11 @@ const bookingRoutes = require('./routes/bookingRoutes');
 
 dotenv.config({ path: path.join(__dirname, '.env') });
 
+if (!process.env.JWT_SECRET?.trim()) {
+  console.error('JWT_SECRET is required. Set it in backend/.env before starting the server.');
+  process.exit(1);
+}
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 

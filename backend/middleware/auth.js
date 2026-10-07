@@ -1,6 +1,6 @@
 const jwt = require('jsonwebtoken');
 
-const getSecret = () => process.env.JWT_SECRET || 'liftmate-development-secret';
+const getSecret = () => process.env.JWT_SECRET;
 
 const requireAuth = (req, res, next) => {
   const header = req.headers.authorization || '';
