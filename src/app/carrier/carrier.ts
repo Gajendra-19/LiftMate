@@ -3,7 +3,7 @@ import { Component, ChangeDetectionStrategy, computed, signal } from '@angular/c
 import { FormControl, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../core/auth/auth.service';
 import { CarrierService } from './carrier.service';
 import {
   BookingForm,

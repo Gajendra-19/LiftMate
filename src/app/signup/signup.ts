@@ -2,7 +2,7 @@ import { Component, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { ToastrService } from 'ngx-toastr';
-import { AuthService, WorkerProfilePayload } from '../auth.service';
+import { AuthService, WorkerProfilePayload } from '../core/auth/auth.service';
 
 @Component({
   selector: 'app-signup',

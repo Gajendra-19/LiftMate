@@ -1,6 +1,6 @@
 import { inject } from '@angular/core';
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, Routes, CanActivateFn } from '@angular/router';
-import { AuthService } from './auth.service';
+import { AuthService } from './core/auth/auth.service';
 import { Carrier } from './carrier/carrier';
 import { Dashboard } from './dashboard/dashboard';
 import { Landing } from './landing/landing';

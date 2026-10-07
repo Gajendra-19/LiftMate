@@ -3,7 +3,7 @@ import { ChangeDetectionStrategy, Component, computed, inject, OnDestroy, OnInit
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
 import { firstValueFrom } from 'rxjs';
-import { AuthService } from '../auth.service';
+import { AuthService } from '../core/auth/auth.service';
 import { environment } from '../../environments/environment';
 import { Router } from '@angular/router';
 
