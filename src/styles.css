@@ -23,6 +23,7 @@ body {
   bottom: auto !important;
   width: min(360px, calc(100vw - 24px)) !important;
   z-index: 9999 !important;
+  pointer-events: auto !important;
 }
 
 #toast-container.toast-top-right {
@@ -31,29 +32,26 @@ body {
 }
 
 #toast-container .ngx-toastr {
+  position: relative !important;
+  pointer-events: auto !important;
   max-width: 340px !important;
   width: 100% !important;
   word-wrap: break-word !important;
-  margin-bottom: 8px !important;
-}
-
-#toast-container .toast {
-  position: relative !important;
-  border-radius: 10px !important;
-  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.32) !important;
-  border: 1px solid rgba(148, 163, 184, 0.2) !important;
-  border-left: 4px solid transparent !important;
-  font-family: 'Inter', sans-serif !important;
-  backdrop-filter: blur(8px) !important;
+  box-sizing: border-box !important;
+  overflow: hidden !important;
+  min-height: 68px !important;
   margin: 0 0 10px !important;
   padding: 14px 44px 12px 16px !important;
-  min-height: 68px !important;
-  overflow: hidden !important;
-  background-clip: padding-box !important;
+  border: 1px solid rgba(148, 163, 184, 0.2) !important;
+  border-left: 4px solid transparent !important;
+  border-radius: 10px !important;
+  box-shadow: 0 18px 36px rgba(15, 23, 42, 0.32) !important;
   color: #f8fafc !important;
+  font-family: var(--lm-body-font) !important;
+  backdrop-filter: blur(8px) !important;
 }
 
-#toast-container .toast .toast-title {
+#toast-container .toast-title {
   font-size: 0.7rem !important;
   font-weight: 800 !important;
   letter-spacing: 0.08em !important;
@@ -62,7 +60,7 @@ body {
   color: #f8fafc !important;
 }
 
-#toast-container .toast .toast-message {
+#toast-container .toast-message {
   font-size: 0.95rem !important;
   line-height: 1.45 !important;
   margin: 0 !important;
@@ -71,8 +69,10 @@ body {
 }
 
 #toast-container .toast-success {
-  background: rgba(15, 23, 42, 0.92) !important;
-  border-left: 4px solid #34d399 !important;
+  background: linear-gradient(135deg, #047857, #065f46) !important;
+  border-color: rgba(167, 243, 208, 0.35) !important;
+  border-left-color: #a7f3d0 !important;
+  box-shadow: 0 18px 36px rgba(6, 95, 70, 0.38) !important;
 }
 
 #toast-container .toast-error {
@@ -94,21 +94,40 @@ body {
 }
 
 #toast-container .toast-close-button {
+  position: absolute !important;
+  pointer-events: auto !important;
   top: 10px !important;
   right: 10px !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  float: none !important;
+  appearance: none !important;
   color: #f8fafc !important;
   opacity: 1 !important;
+  font-family: 'Segoe UI Symbol', sans-serif !important;
   font-size: 16px !important;
+  font-weight: 400 !important;
+  line-height: 1 !important;
   background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
   border-radius: 50% !important;
-  width: 22px !important;
-  height: 22px !important;
-  line-height: 22px !important;
-  text-align: center !important;
+  width: 24px !important;
+  height: 24px !important;
   padding: 0 !important;
+  text-shadow: none !important;
+  cursor: pointer !important;
+}
+
+#toast-container .toast-close-button:hover {
+  background: rgba(255, 255, 255, 0.18) !important;
+  border-color: rgba(255, 255, 255, 0.45) !important;
 }
 
 #toast-container .toast-progress {
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 0 !important;
   height: 3px !important;
   border-radius: 999px !important;
   background: rgba(255, 255, 255, 0.18) !important;
