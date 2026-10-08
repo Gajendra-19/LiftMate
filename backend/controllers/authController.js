@@ -145,6 +145,44 @@ const login = async (req, res) => {
   }
 };
 
+const demoLogin = async (req, res) => {
+  const demoEmails = {
+    customer: 'demo.customer@liftmate.test',
+    'individual-worker': 'demo.individual@liftmate.test',
+    'team-worker': 'demo.team@liftmate.test',
+  };
+  const role = req.body?.role;
+  const email = typeof role === 'string' && Object.hasOwn(demoEmails, role) ? demoEmails[role] : null;
+  if (!email) return res.status(400).json({ message: 'Invalid demo account role' });
+
+  try {
+    const user = await User.findOne({ email });
+    const expectedRole = role === 'customer' ? 'customer' : 'worker';
+    if (!user || user.isDemo !== true || user.role !== expectedRole) {
+      return res.status(404).json({ message: 'Demo account is not configured' });
+    }
+
+    if (role !== 'customer') {
+      const provider = await Provider.findOne({ userId: user._id }).select('_id kind').lean();
+      const expectedKind = role === 'team-worker' ? 'Team' : 'Individual';
+      if (!provider || provider.kind !== expectedKind) {
+        return res.status(404).json({ message: 'Demo account is not configured' });
+      }
+    }
+
+    return res.status(200).json({
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      token: issueToken(user),
+    });
+  } catch (error) {
+    console.error('Demo login failed:', error);
+    return res.status(500).json({ message: 'Demo login failed' });
+  }
+};
+
 const getProfile = async (req, res) => {
   try {
     const user = await User.findById(req.params.userId).select('name email role location address').lean();
@@ -178,4 +216,4 @@ const updateProfile = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, getProfile, updateProfile };
+module.exports = { signup, login, demoLogin, getProfile, updateProfile };

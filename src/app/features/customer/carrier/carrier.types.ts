@@ -49,3 +49,9 @@ export interface SelectedFile {
   file: File;
   previewUrl: string | null;
 }
+
+export interface BookingImage {
+  name: string;
+  contentType: string;
+  dataUrl: string;
+}

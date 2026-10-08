@@ -1,5 +1,19 @@
 <main class="provider-dashboard container py-5">
-  @if (!profileRegistered()) {
+  @if (profileLoading()) {
+    <section class="onboarding-panel mb-5" role="status" aria-live="polite">
+      <p class="eyebrow mb-2">Worker workspace</p>
+      <h1>Loading your provider page...</h1>
+    </section>
+  } @else if (profileError()) {
+    <section class="onboarding-panel mb-5" role="alert">
+      <p class="eyebrow mb-2">Worker workspace</p>
+      <h1>Unable to load your provider page</h1>
+      <p class="text-secondary">{{ profileError() }}</p>
+      <button class="btn btn-primary" type="button" (click)="retryLoadProfile()">
+        Try again
+      </button>
+    </section>
+  } @else if (!profileRegistered()) {
     <section class="onboarding-panel mb-5" aria-labelledby="join-heading">
       <div class="onboarding-copy">
         <p class="eyebrow mb-2">Earn with LiftMate</p>
@@ -232,9 +246,9 @@
       <section class="worker-main">
     <div class="d-flex flex-wrap justify-content-between align-items-end gap-3 mb-4">
       <div>
-        <p class="eyebrow mb-2">{{ profile()?.kind }} LiftMate profile</p>
+        <p class="eyebrow mb-2">{{ team() ? 'Team' : profile()?.kind }} LiftMate profile</p>
         <h1 class="fw-bold mb-1">
-          Welcome, {{ profile()?.kind === 'Team' ? profile()?.teamName : profile()?.name }}
+          Welcome, {{ team()?.name || (profile()?.kind === 'Team' ? profile()?.teamName : profile()?.name) }}
         </h1>
         <p class="text-secondary mb-0">
           Review customer requests and decide which loads you want to carry.
@@ -269,40 +283,107 @@
 
     @if (activeSection === 'team') {
     <section class="team-panel mb-5">
-      <div class="d-flex justify-content-between align-items-center mb-3">
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-3">
         <div>
           <p class="eyebrow mb-1">Team</p>
-          <h2 class="h4 mb-0">Manage your team</h2>
+          <h2 class="h4 mb-0">Work together</h2>
+          <p class="text-secondary mb-0">Create a crew or join one with an invite code.</p>
         </div>
-        <div class="team-toggle">
+      </div>
+
+      @if (team()) {
+        <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 p-3 bg-light border rounded-3">
+          @if (team()?.isCreator) {
+            <div>
+              <small class="d-block text-secondary">Team invite code · share with your crew</small>
+              <strong class="text-primary fs-5 fw-bold">{{ team()?.inviteCode }}</strong>
+            </div>
+          } @else {
+            <p class="mb-0 text-secondary">Ask the team creator for an invite code to share with new members.</p>
+          }
+          <button class="btn btn-outline-danger" type="button" (click)="leaveTeam()" [disabled]="teamSaving()">
+            {{ teamSaving() ? 'Please wait...' : 'Leave team' }}
+          </button>
+        </div>
+        <ul class="list-group mt-3" aria-label="Team members">
+          @for (member of team()?.members; track member.userId) {
+            <li class="list-group-item d-flex flex-wrap align-items-center gap-2">
+              <span class="material-icons text-primary" aria-hidden="true">person</span>
+              <span>{{ member.name }}</span>
+              <span class="badge text-bg-secondary">{{ member.role }}</span>
+              @if (member.userId === authService.user()?.id) {
+                <small class="text-secondary">You</small>
+              }
+              @if (team()?.canManageMembers && member.userId !== authService.user()?.id) {
+                <label class="ms-auto">
+                  <span class="visually-hidden">Role for {{ member.name }}</span>
+                  <select
+                    class="form-select form-select-sm"
+                    [ngModel]="member.role"
+                    [ngModelOptions]="{ standalone: true }"
+                    (ngModelChange)="updateTeamMemberRole(member.userId, $event)"
+                    [disabled]="teamSaving()"
+                  >
+                    <option value="Member">Member</option>
+                    <option value="Admin">Admin</option>
+                  </select>
+                </label>
+                <button
+                  class="btn btn-sm btn-outline-danger"
+                  type="button"
+                  (click)="removeTeamMember(member.userId, member.name)"
+                  [disabled]="teamSaving()"
+                >
+                  Remove
+                </button>
+              }
+            </li>
+          }
+        </ul>
+      } @else {
+        <div class="team-toggle" role="group" aria-label="Team action">
           <button type="button" [class.active]="teamMode === 'create'" (click)="teamMode = 'create'">Create team</button>
           <button type="button" [class.active]="teamMode === 'join'" (click)="teamMode = 'join'">Join team</button>
         </div>
-      </div>
-
-      @if (teamMode === 'create') {
-        <div class="team-form">
-          <label>
-            Team name
-            <input class="form-control" [(ngModel)]="teamName" placeholder="e.g. Mumbai Load Crew" />
-          </label>
-          <button class="btn btn-primary" type="button" (click)="createOrJoinTeam()">Create team</button>
-        </div>
-      } @else {
-        <div class="team-form">
-          <label>
-            Team code
-            <input class="form-control" [(ngModel)]="joinCode" placeholder="Enter team invite code" />
-          </label>
-          <button class="btn btn-primary" type="button" (click)="createOrJoinTeam()">Join team</button>
-        </div>
+        @if (teamMode === 'create') {
+          <div class="team-form">
+            <label>
+              Team name
+              <input
+                class="form-control"
+                [(ngModel)]="teamNameInput"
+                maxlength="60"
+                placeholder="e.g. Mumbai Load Crew"
+              />
+            </label>
+            <button class="btn btn-primary" type="button" (click)="createOrJoinTeam()" [disabled]="teamSaving() || teamNameInput.trim().length < 2">
+              {{ teamSaving() ? 'Creating...' : 'Create team' }}
+            </button>
+          </div>
+        } @else {
+          <div class="team-form">
+            <label>
+              Team invite code
+              <input
+                class="form-control"
+                [(ngModel)]="joinCode"
+                maxlength="8"
+                placeholder="Enter 8-character code"
+              />
+            </label>
+            <button class="btn btn-primary" type="button" (click)="createOrJoinTeam()" [disabled]="teamSaving() || joinCode.trim().length !== 8">
+              {{ teamSaving() ? 'Joining...' : 'Join team' }}
+            </button>
+          </div>
+        }
       }
 
-      <div class="team-members mt-3">
-        @for (member of teamMembers; track member) {
-          <span>{{ member }}</span>
-        }
-      </div>
+      @if (teamMessage()) {
+        <p class="text-success mt-3 mb-0" role="status">{{ teamMessage() }}</p>
+      }
+      @if (teamError()) {
+        <p class="text-danger mt-3 mb-0" role="alert">{{ teamError() }}</p>
+      }
     </section>
     }
 
@@ -342,6 +423,9 @@
       </div>
       <form #settingsForm="ngForm" (ngSubmit)="saveSettings()" novalidate>
         <div class="settings-grid">
+          <label>Full name
+            <input class="form-control" name="settingsName" [(ngModel)]="settingsName" required minlength="2" maxlength="80" />
+          </label>
           <label>Service area
             <input class="form-control" name="settingsServiceArea" [(ngModel)]="serviceArea" required minlength="2" />
           </label>
@@ -408,6 +492,16 @@
               <small>Payment status</small><strong>{{ request()?.paymentStatus }} · ₹{{ request()?.payment }}</strong>
             </div>
           </div>
+          @if (request()?.images?.length) {
+            <section class="request-photos mt-4" aria-label="Customer load photos">
+              <h3 class="h6 fw-bold mb-2">Load photos</h3>
+              <div class="request-photo-list">
+                @for (image of request()?.images; track image.dataUrl) {
+                  <img class="request-photo" [src]="image.dataUrl" [alt]="image.name" />
+                }
+              </div>
+            </section>
+          }
           @if (requestState() === 'New request') {
             <div class="d-flex gap-2 mt-4">
               <button class="btn btn-primary" type="button" (click)="acceptRequest()">
@@ -423,9 +517,17 @@
                 Show request again
               </button>
             </div>
+          } @else if (requestState() === 'Awaiting Customer Confirmation') {
+            <div class="alert alert-warning mt-4">
+              You marked this job as done. It is waiting for the customer to confirm completion.
+            </div>
+          } @else if (requestState() === 'Completion Disputed') {
+            <div class="alert alert-danger mt-4">
+              The customer reported that the job is not complete. A simulated full refund was recorded.
+            </div>
           } @else if (requestState() === 'Completed') {
             <div class="alert alert-success mt-4">
-              This job has been completed.
+              The customer confirmed that this job is complete.
             </div>
           } @else {
             <div class="alert alert-success mt-4">
@@ -464,10 +566,18 @@
               [disabled]="activeStatus() === 'Completed'"
               (click)="advanceJob()"
             >
-              {{ activeStatus() === 'Completed' ? 'Job completed' : 'Update job status' }}
+              {{ activeStatus() === 'Completed' ? 'Waiting for customer confirmation' : 'Update job status' }}
             </button>
+          } @else if (requestState() === 'Awaiting Customer Confirmation') {
+            <div class="alert alert-warning mb-0">
+              Waiting for the customer to confirm that the job is complete.
+            </div>
+          } @else if (requestState() === 'Completion Disputed') {
+            <div class="alert alert-danger mb-0">
+              The customer reported the job is not complete. A simulated full refund was recorded.
+            </div>
           } @else if (requestState() === 'Completed') {
-            <div class="alert alert-success mb-0">Job completed successfully.</div>
+            <div class="alert alert-success mb-0">The customer confirmed job completion.</div>
           } @else {
             <div class="empty-state text-center py-5">
               <span class="material-icons text-secondary fs-1">local_shipping</span>

@@ -12,6 +12,7 @@ export interface DashboardBooking {
   deliveryLocation: string;
   bookingDate: string;
   bookingTime: string;
+  timeZoneOffsetMinutes?: number;
   durationHours: number;
   weight?: number;
   items?: number;
@@ -19,14 +20,17 @@ export interface DashboardBooking {
   paymentMethod?: string;
   totalPrice: number;
   status: string;
+  paymentStatus?: string;
+  paymentRefundedAmount?: number;
+  completionConfirmation?: 'pending' | 'confirmed' | 'disputed' | null;
   createdAt: string;
   providerId?: DashboardProviderSummary | null;
 }
 
 export interface DashboardSummary {
-  activeRequests: number;
+  requestsSent: number;
+  activeJobs: number;
   completedJobs: number;
-  savedProviders: number;
   recentActivities: DashboardBooking[];
 }
 
@@ -36,20 +40,22 @@ export function summarizeDashboardBookings(bookings: DashboardBooking[]): Dashbo
   );
 
   const recentActivities = ordered.slice(0, 2);
-  const completedJobs = bookings.filter((booking) => booking.status === 'Completed').length;
-  const activeRequests = bookings.filter(
-    (booking) => booking.status !== 'Completed' && booking.status !== 'Cancelled',
+  const requestsSent = bookings.filter((booking) => booking.status === 'Request Sent').length;
+  const activeJobs = bookings.filter((booking) =>
+    [
+      'Accepted',
+      'On the Way',
+      'Arrived',
+      'Job Started',
+      'Awaiting Customer Confirmation',
+    ].includes(booking.status),
   ).length;
-  const savedProviders = new Set(
-    bookings
-      .filter((booking) => booking.providerId && booking.providerId.name)
-      .map((booking) => booking.providerId!.name),
-  ).size;
+  const completedJobs = bookings.filter((booking) => booking.status === 'Completed').length;
 
   return {
-    activeRequests,
+    requestsSent,
+    activeJobs,
     completedJobs,
-    savedProviders,
     recentActivities,
   };
 }

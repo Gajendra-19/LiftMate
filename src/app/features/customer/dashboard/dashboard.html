@@ -99,19 +99,19 @@
         </div>
         <div class="dashboard-grid">
           <article class="metric-card">
-            <span>Active requests</span>
-            <strong>{{ dashboardSummary().activeRequests }}</strong>
-            <small>Requests awaiting a provider</small>
+            <span>Requests sent</span>
+            <strong>{{ dashboardSummary().requestsSent }}</strong>
+            <small>Waiting for a worker to respond</small>
+          </article>
+          <article class="metric-card">
+            <span>Jobs in progress</span>
+            <strong>{{ dashboardSummary().activeJobs }}</strong>
+            <small>Accepted or awaiting your confirmation</small>
           </article>
           <article class="metric-card">
             <span>Completed jobs</span>
             <strong>{{ dashboardSummary().completedJobs }}</strong>
-            <small>Your LiftMate history</small>
-          </article>
-          <article class="metric-card">
-            <span>Saved providers</span>
-            <strong>{{ dashboardSummary().savedProviders }}</strong>
-            <small>Trusted for your next move</small>
+            <small>Confirmed by you</small>
           </article>
         </div>
         <section class="recent-panel">
@@ -163,9 +163,51 @@
               <div><small>Drop-off</small><strong>{{ booking.deliveryLocation }}</strong></div>
               <div><small>Schedule</small><strong>{{ booking.bookingDate }} · {{ booking.bookingTime }}</strong></div>
               <div><small>Load</small><strong>{{ booking.weight || 0 }} kg · {{ booking.items || 0 }} items</strong></div>
-              <div><small>Payment</small><strong>{{ formatPrice(booking.totalPrice || 0) }} · {{ booking.paymentMethod || 'card' }}</strong></div>
+              <div><small>Payment</small><strong>{{ formatPrice(booking.totalPrice || 0) }} · {{ booking.paymentMethod || 'card' }} · {{ booking.paymentStatus || 'pending' }}</strong></div>
+              @if ((booking.paymentRefundedAmount || 0) > 0) {
+                <div><small>Recorded refund</small><strong>{{ formatPrice(booking.paymentRefundedAmount || 0) }}</strong></div>
+              }
               <div><small>Preferences</small><strong>{{ booking.preferences || 'None added' }}</strong></div>
             </div>
+            @if (booking.status === 'Awaiting Customer Confirmation') {
+              <div class="alert alert-warning mt-4 mb-0">
+                <p class="mb-3">The worker marked this job complete. Please confirm whether the work is finished.</p>
+                <div class="d-flex flex-wrap gap-2">
+                  <button class="btn btn-success" type="button" [disabled]="bookingActionId() === booking._id" (click)="confirmCompletion(booking, true)">
+                    Confirm completed
+                  </button>
+                  <button class="btn btn-outline-danger" type="button" [disabled]="bookingActionId() === booking._id" (click)="confirmCompletion(booking, false)">
+                    Not completed
+                  </button>
+                </div>
+              </div>
+            } @else if (booking.status === 'Completion Disputed') {
+              <div class="alert alert-danger mt-4 mb-0">
+                Completion disputed. A simulated full refund of {{ formatPrice(booking.paymentRefundedAmount || 0) }} is recorded.
+              </div>
+            }
+            @if (canCancelBooking(booking)) {
+              <div class="border rounded-3 p-3 mt-4">
+                <p class="mb-2">
+                  Cancellation policy: {{ getCancellationDetails(booking).feePercent }}% fee
+                  ({{ formatPrice(getCancellationDetails(booking).feeAmount) }}); recorded refund
+                  {{ formatPrice(getCancellationDetails(booking).refundAmount) }}.
+                </p>
+                <button class="btn btn-outline-danger" type="button" [disabled]="bookingActionId() === booking._id" (click)="cancelBooking(booking)">
+                  {{ bookingActionId() === booking._id ? 'Processing...' : 'Cancel booking' }}
+                </button>
+              </div>
+            } @else if (booking.status === 'Cancelled') {
+              <p class="alert alert-secondary mt-4 mb-0">
+                This booking was cancelled. Recorded refund: {{ formatPrice(booking.paymentRefundedAmount || 0) }}.
+              </p>
+            }
+            @if (bookingActionError()) {
+              <p class="text-danger mt-3 mb-0" role="alert">{{ bookingActionError() }}</p>
+            }
+            @if (bookingActionMessage()) {
+              <p class="text-success mt-3 mb-0" role="status">{{ bookingActionMessage() }}</p>
+            }
             @if (booking.status === 'Completed') {
               <div class="review-panel mt-4">
                 <p class="eyebrow mb-1">Completed job</p>
@@ -238,9 +280,51 @@
               <div><small>Drop-off</small><strong>{{ booking.deliveryLocation }}</strong></div>
               <div><small>Schedule</small><strong>{{ booking.bookingDate }} · {{ booking.bookingTime }}</strong></div>
               <div><small>Load</small><strong>{{ booking.weight || 0 }} kg · {{ booking.items || 0 }} items</strong></div>
-              <div><small>Payment</small><strong>{{ formatPrice(booking.totalPrice || 0) }} · {{ booking.paymentMethod || 'card' }}</strong></div>
+              <div><small>Payment</small><strong>{{ formatPrice(booking.totalPrice || 0) }} · {{ booking.paymentMethod || 'card' }} · {{ booking.paymentStatus || 'pending' }}</strong></div>
+              @if ((booking.paymentRefundedAmount || 0) > 0) {
+                <div><small>Recorded refund</small><strong>{{ formatPrice(booking.paymentRefundedAmount || 0) }}</strong></div>
+              }
               <div><small>Preferences</small><strong>{{ booking.preferences || 'None added' }}</strong></div>
             </div>
+            @if (booking.status === 'Awaiting Customer Confirmation') {
+              <div class="alert alert-warning mt-4 mb-0">
+                <p class="mb-3">The worker marked this job complete. Please confirm whether the work is finished.</p>
+                <div class="d-flex flex-wrap gap-2">
+                  <button class="btn btn-success" type="button" [disabled]="bookingActionId() === booking._id" (click)="confirmCompletion(booking, true)">
+                    Confirm completed
+                  </button>
+                  <button class="btn btn-outline-danger" type="button" [disabled]="bookingActionId() === booking._id" (click)="confirmCompletion(booking, false)">
+                    Not completed
+                  </button>
+                </div>
+              </div>
+            } @else if (booking.status === 'Completion Disputed') {
+              <div class="alert alert-danger mt-4 mb-0">
+                Completion disputed. A simulated full refund of {{ formatPrice(booking.paymentRefundedAmount || 0) }} is recorded.
+              </div>
+            }
+            @if (canCancelBooking(booking)) {
+              <div class="border rounded-3 p-3 mt-4">
+                <p class="mb-2">
+                  Cancellation policy: {{ getCancellationDetails(booking).feePercent }}% fee
+                  ({{ formatPrice(getCancellationDetails(booking).feeAmount) }}); recorded refund
+                  {{ formatPrice(getCancellationDetails(booking).refundAmount) }}.
+                </p>
+                <button class="btn btn-outline-danger" type="button" [disabled]="bookingActionId() === booking._id" (click)="cancelBooking(booking)">
+                  {{ bookingActionId() === booking._id ? 'Processing...' : 'Cancel booking' }}
+                </button>
+              </div>
+            } @else if (booking.status === 'Cancelled') {
+              <p class="alert alert-secondary mt-4 mb-0">
+                This booking was cancelled. Recorded refund: {{ formatPrice(booking.paymentRefundedAmount || 0) }}.
+              </p>
+            }
+            @if (bookingActionError()) {
+              <p class="text-danger mt-3 mb-0" role="alert">{{ bookingActionError() }}</p>
+            }
+            @if (bookingActionMessage()) {
+              <p class="text-success mt-3 mb-0" role="status">{{ bookingActionMessage() }}</p>
+            }
             @if (booking.status === 'Completed') {
               <div class="review-panel mt-4">
                 <p class="eyebrow mb-1">Completed job</p>

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpErrorResponse } from '@angular/common/http';
 import { ChangeDetectionStrategy, Component, DestroyRef, inject, OnDestroy, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import {
@@ -33,9 +33,9 @@ export class Dashboard implements OnDestroy {
   protected readonly sidebarCollapsed = signal(false);
   protected readonly childRouteActive = signal(false);
   protected readonly dashboardSummary = signal<DashboardSummary>({
-    activeRequests: 0,
+    requestsSent: 0,
+    activeJobs: 0,
     completedJobs: 0,
-    savedProviders: 0,
     recentActivities: [],
   });
   protected readonly selectedBooking = signal<DashboardBooking | null>(null);
@@ -43,6 +43,9 @@ export class Dashboard implements OnDestroy {
   protected readonly reviewText = signal('');
   protected readonly reviewSubmittedFor = signal<string | null>(null);
   protected readonly reviewSaving = signal(false);
+  protected readonly bookingActionId = signal<string | null>(null);
+  protected readonly bookingActionError = signal('');
+  protected readonly bookingActionMessage = signal('');
   protected customerName = '';
   protected customerLocation = '';
   protected customerAddress = '';
@@ -91,9 +94,9 @@ export class Dashboard implements OnDestroy {
     const userId = this.authService.user()?.id;
     if (!userId) {
       this.dashboardSummary.set({
-        activeRequests: 0,
+        requestsSent: 0,
+        activeJobs: 0,
         completedJobs: 0,
-        savedProviders: 0,
         recentActivities: [],
       });
       return;
@@ -111,9 +114,9 @@ export class Dashboard implements OnDestroy {
       }
     } catch {
       this.dashboardSummary.set({
-        activeRequests: 0,
+        requestsSent: 0,
+        activeJobs: 0,
         completedJobs: 0,
-        savedProviders: 0,
         recentActivities: [],
       });
     }
@@ -138,15 +141,119 @@ export class Dashboard implements OnDestroy {
     return `₹${value.toLocaleString('en-IN')}`;
   }
 
+  protected canCancelBooking(booking: DashboardBooking): boolean {
+    return ['Request Sent', 'Accepted', 'On the Way', 'Arrived', 'Job Started'].includes(
+      booking.status,
+    );
+  }
+
   protected selectBooking(booking: DashboardBooking): void {
     this.selectedBooking.set(booking);
     this.reviewRating.set(0);
     this.reviewText.set('');
     this.reviewSubmittedFor.set(null);
+    this.bookingActionError.set('');
+    this.bookingActionMessage.set('');
   }
 
   protected closeBookingSummary(): void {
     this.selectedBooking.set(null);
+  }
+
+  protected getCancellationDetails(booking: DashboardBooking): {
+    feePercent: number;
+    feeAmount: number;
+    refundAmount: number;
+  } {
+    let feePercent = 100;
+    if (!['On the Way', 'Arrived', 'Job Started'].includes(booking.status)) {
+      const [year, month, day] = booking.bookingDate.split('-').map(Number);
+      const [hour, minute] = booking.bookingTime.split(':').map(Number);
+      const offset = booking.timeZoneOffsetMinutes ?? 0;
+      const pickupAt =
+        Date.UTC(year, month - 1, day, hour, minute) + offset * 60_000;
+      const hoursUntilPickup = (pickupAt - Date.now()) / 3_600_000;
+      feePercent = !Number.isFinite(pickupAt)
+        ? 100
+        : hoursUntilPickup > 24
+          ? 0
+          : hoursUntilPickup > 12
+            ? 50
+            : 100;
+    }
+    const feeAmount = Math.round((booking.totalPrice * feePercent) / 100);
+    return {
+      feePercent,
+      feeAmount,
+      refundAmount: Math.max(0, booking.totalPrice - feeAmount),
+    };
+  }
+
+  protected async cancelBooking(booking: DashboardBooking): Promise<void> {
+    if (this.bookingActionId()) return;
+    const cancellation = this.getCancellationDetails(booking);
+    const message =
+      `Cancel this booking? A ${cancellation.feePercent}% fee ` +
+      `(${this.formatPrice(cancellation.feeAmount)}) applies. ` +
+      `The recorded refund will be ${this.formatPrice(cancellation.refundAmount)}.`;
+    if (!window.confirm(message)) return;
+
+    this.bookingActionId.set(booking._id);
+    this.bookingActionError.set('');
+    this.bookingActionMessage.set('');
+    try {
+      await firstValueFrom(
+        this.http.request<{ message: string; id: string }>(
+          'DELETE',
+          `${environment.apiUrl}/bookings/${booking._id}`,
+          { body: { reason: 'Cancelled by the customer' } },
+        ),
+      );
+      await this.loadDashboardData();
+      this.bookingActionMessage.set('Booking cancelled. The cancellation and refund are recorded.');
+    } catch (error) {
+      this.bookingActionError.set(
+        error instanceof HttpErrorResponse && typeof error.error?.message === 'string'
+          ? error.error.message
+          : 'Could not cancel the booking. Please try again.',
+      );
+    } finally {
+      this.bookingActionId.set(null);
+    }
+  }
+
+  protected async confirmCompletion(booking: DashboardBooking, confirmed: boolean): Promise<void> {
+    if (this.bookingActionId()) return;
+    const confirmationMessage = confirmed
+      ? 'Confirm that the worker completed this job?'
+      : 'Report that the job is not complete? A simulated full refund will be recorded.';
+    if (!window.confirm(confirmationMessage)) return;
+
+    this.bookingActionId.set(booking._id);
+    this.bookingActionError.set('');
+    this.bookingActionMessage.set('');
+    try {
+      const response = await firstValueFrom(
+        this.http.post<{ status: string; paymentStatus: string }>(
+          `${environment.apiUrl}/bookings/${booking._id}/confirm-completion`,
+          { confirmed },
+        ),
+      );
+      await this.loadDashboardData();
+      this.bookingActionMessage.set(
+        confirmed
+          ? 'Job completion confirmed.'
+          : `Job marked as not complete. A simulated full refund was recorded (${response.paymentStatus}).`,
+      );
+    } catch (error) {
+      this.bookingActionError.set(
+        error instanceof HttpErrorResponse && typeof error.error?.message === 'string'
+          ? error.error.message
+          : 'Could not save your completion response. Please try again.',
+      );
+    } finally {
+      this.bookingActionId.set(null);
+    }
   }
 
   protected async submitBookingReview(booking: DashboardBooking): Promise<void> {

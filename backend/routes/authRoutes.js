@@ -5,6 +5,7 @@ const authController = require('../controllers/authController');
 
 router.post('/signup', authController.signup);
 router.post('/login', authController.login);
+router.post('/demo-login', authController.demoLogin);
 router.get('/profile/:userId', requireAuth, requireOwnership(), authController.getProfile);
 router.patch('/profile/:userId', requireAuth, requireOwnership(), authController.updateProfile);
 

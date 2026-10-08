@@ -43,7 +43,10 @@ Model: `Booking`; collection: `orders` (explicitly configured in the model).
 - `weight`, `items`, `durationHours` (required numbers)
 - `pickupLocation`, `deliveryLocation`, `bookingDate`, `bookingTime` (required strings)
 - `preferences` (default empty string)
-- `status` (`Request Sent`, `Accepted`, `On the Way`, `Arrived`, `Job Started`, `Completed`, or `Cancelled`; default `Request Sent`)
+- `timeZoneOffsetMinutes` (booking-time UTC offset in minutes, default `0`)
+- `status` (`Request Sent`, `Accepted`, `On the Way`, `Arrived`, `Job Started`, `Awaiting Customer Confirmation`, `Completed`, `Completion Disputed`, or `Cancelled`; default `Request Sent`)
+- `completionConfirmation` (`pending`, `confirmed`, or `disputed`; default `null`)
+- `completionConfirmedAt` (customer response timestamp, default `null`)
 - `totalPrice` (default `0`)
 - `paymentMethod` (`card`, `wallet`, or `bank`; default `card`)
 - `createdAt`, `updatedAt`
@@ -56,7 +59,8 @@ Collection: `payments`
 - `userId` (User reference, required)
 - `amount` (required number)
 - `paymentMethod` (`card`, `wallet`, or `bank`; default `card`)
-- `status` (`pending`, `success`, `failed`, or `refunded`; default `pending`)
+- `status` (`pending`, `success`, `failed`, `partially_refunded`, or `refunded`; default `pending`)
+- `refundedAmount` (simulated recorded refund amount, default `0`)
 - `transactionReference` (default empty string)
 - `createdAt`, `updatedAt`
 
@@ -79,10 +83,12 @@ Collection: `cancellations`
 - `userId` (User reference, required)
 - `reason` (default empty string)
 - `feePercent`, `feeAmount` (default `0`)
+- `refundAmount` (simulated recorded refund, default `0`)
+- `initiatedBy` (`customer`, `worker`, or `system`; default `customer`)
 - `status` (`pending`, `approved`, or `rejected`; default `pending`)
 - `createdAt`, `updatedAt`
 
-The `Cancellation` model is not currently used by any route or controller.
+Cancellation records are created when a booking is cancelled. Refunds are recorded in MongoDB only; no payment gateway is connected.
 
 ## Booking documents
 

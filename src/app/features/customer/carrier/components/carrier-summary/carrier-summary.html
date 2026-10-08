@@ -36,6 +36,27 @@
     <dd class="col-sm-8 h4 fw-bold text-success mb-0">₹{{ provider().price }}</dd>
   </dl>
 
+  @if (selectedFiles().some((selectedFile) => selectedFile.previewUrl)) {
+    <section class="mb-4" aria-label="Uploaded load photos">
+      <h2 class="h6 fw-bold mb-2">Load photos</h2>
+      <div class="summary-photos">
+        @for (selectedFile of selectedFiles(); track $index) {
+          @if (selectedFile.previewUrl) {
+            <img
+              class="summary-photo"
+              [src]="selectedFile.previewUrl"
+              [alt]="'Preview of ' + selectedFile.file.name"
+            />
+          }
+        }
+      </div>
+    </section>
+  }
+
+  @if (imageUploadError()) {
+    <div class="alert alert-danger" role="alert">{{ imageUploadError() }}</div>
+  }
+
   <div class="border rounded-3 p-3 bg-light mb-4">
     <h2 class="h6 fw-bold mb-2">Payment method</h2>
     <div class="d-flex flex-wrap gap-3">

@@ -105,13 +105,16 @@
                 class="form-control"
                 id="weight"
                 formControlName="weight"
+                min="1"
+                max="100000"
+                step="any"
                 placeholder="e.g. 450"
                 [class.is-invalid]="
                   form().controls.weight.invalid && form().controls.weight.touched
                 "
               />
               @if (form().controls.weight.invalid && form().controls.weight.touched) {
-                <div class="invalid-feedback d-block">Valid weight in kg is required (min 1).</div>
+                <div class="invalid-feedback d-block">Weight must be from 1 to 100,000 kg.</div>
               }
             </div>
             <div class="col-md-6">
@@ -123,11 +126,14 @@
                 class="form-control"
                 id="items"
                 formControlName="items"
+                min="1"
+                max="10000"
+                step="1"
                 placeholder="e.g. 6 pallets"
                 [class.is-invalid]="form().controls.items.invalid && form().controls.items.touched"
               />
               @if (form().controls.items.invalid && form().controls.items.touched) {
-                <div class="invalid-feedback d-block">Number of units is required (min 1).</div>
+                <div class="invalid-feedback d-block">Enter a whole number of units from 1 to 10,000.</div>
               }
             </div>
           </div>
@@ -237,10 +243,15 @@
                 class="form-control"
                 id="date"
                 formControlName="date"
+                [min]="minBookingDate()"
                 [class.is-invalid]="form().controls.date.invalid && form().controls.date.touched"
               />
               @if (form().controls.date.invalid && form().controls.date.touched) {
-                <div class="invalid-feedback d-block">Date is required.</div>
+                @if (form().controls.date.errors?.['pastDate']) {
+                  <div class="invalid-feedback d-block">Choose today or a future date.</div>
+                } @else {
+                  <div class="invalid-feedback d-block">Date is required.</div>
+                }
               }
             </div>
             <div class="col-md-4">
@@ -268,13 +279,15 @@
                 class="form-control"
                 id="duration"
                 formControlName="duration"
+                max="24"
+                step="1"
                 placeholder="e.g. 3"
                 [class.is-invalid]="
                   form().controls.duration.invalid && form().controls.duration.touched
                 "
               />
               @if (form().controls.duration.invalid && form().controls.duration.touched) {
-                <div class="invalid-feedback d-block">Duration is required.</div>
+                <div class="invalid-feedback d-block">Duration must be between 1 and 24 hours.</div>
               }
             </div>
           </div>
@@ -331,6 +344,23 @@
             hrs)
           </dd>
         </dl>
+
+        @if (selectedFiles().some((selectedFile) => selectedFile.previewUrl)) {
+          <section class="mb-4" aria-label="Uploaded load photos">
+            <h3 class="h6 fw-bold mb-2">Load photos</h3>
+            <div class="confirmation-photos">
+              @for (selectedFile of selectedFiles(); track $index) {
+                @if (selectedFile.previewUrl) {
+                  <img
+                    class="confirmation-photo"
+                    [src]="selectedFile.previewUrl"
+                    [alt]="'Preview of ' + selectedFile.file.name"
+                  />
+                }
+              }
+            </div>
+          </section>
+        }
 
         @if (submitted()) {
           <div class="alert alert-success d-flex align-items-center gap-2" role="status">

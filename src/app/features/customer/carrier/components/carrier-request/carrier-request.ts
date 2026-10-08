@@ -12,6 +12,7 @@ import { BookingForm, SelectedFile } from '../../carrier.types';
 
 export class CarrierRequestComponent {
   form = input.required<FormGroup<BookingForm>>();
+  minBookingDate = input.required<string>();
   requestStep = input.required<1 | 2 | 3>();
   submitted = input.required<boolean>();
   loading = input.required<boolean>();

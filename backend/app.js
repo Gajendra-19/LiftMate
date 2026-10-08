@@ -11,11 +11,14 @@ const app = express();
 
 app.use(helmet());
 app.use(cors({ origin: env.CLIENT_ORIGIN }));
+app.use('/api/bookings/create', express.json({ limit: '15mb' }));
 app.use(express.json({ limit: '100kb' }));
 
-const authRateLimitOptions = { windowMs: 15 * 60 * 1000, limit: 10 };
-app.use('/api/auth/login', rateLimit(authRateLimitOptions));
-app.use('/api/auth/signup', rateLimit(authRateLimitOptions));
+const loginRateLimitOptions = { windowMs: 5 * 60 * 1000, limit: 10 };
+const signupRateLimitOptions = { windowMs: 15 * 60 * 1000, limit: 10 };
+app.use('/api/auth/login', rateLimit(loginRateLimitOptions));
+app.use('/api/auth/demo-login', rateLimit(loginRateLimitOptions));
+app.use('/api/auth/signup', rateLimit(signupRateLimitOptions));
 
 app.use('/api/auth', authRoutes);
 app.use('/api/providers', providerRoutes);

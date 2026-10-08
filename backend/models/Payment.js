@@ -6,7 +6,12 @@ const paymentSchema = new mongoose.Schema(
     userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
     amount: { type: Number, required: true },
     paymentMethod: { type: String, enum: ['card', 'wallet', 'bank'], default: 'card' },
-    status: { type: String, enum: ['pending', 'success', 'failed', 'refunded'], default: 'pending' },
+    status: {
+      type: String,
+      enum: ['pending', 'success', 'failed', 'partially_refunded', 'refunded'],
+      default: 'pending',
+    },
+    refundedAmount: { type: Number, default: 0 },
     transactionReference: { type: String, default: '' },
   },
   { timestamps: true },

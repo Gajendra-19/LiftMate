@@ -3,7 +3,12 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink, ActivatedRoute, Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { ToastrService } from 'ngx-toastr';
-import { AuthService } from '../../../core/auth/auth.service';
+import { AuthService, DemoAccountRole } from '../../../core/auth/auth.service';
+
+interface DemoAccountOption {
+  role: DemoAccountRole;
+  label: string;
+}
 
 @Component({
   selector: 'app-login',
@@ -18,6 +23,12 @@ export class Login {
   showPassword: boolean = false;
   loginError: string = '';
   loading = false;
+  demoLoading: DemoAccountRole | null = null;
+  readonly demoAccounts: DemoAccountOption[] = [
+    { role: 'customer', label: 'Customer' },
+    { role: 'individual-worker', label: 'Individual Worker' },
+    { role: 'team-worker', label: 'Team Worker' },
+  ];
   readonly returnUrl: string;
   emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 
@@ -59,15 +70,44 @@ export class Login {
         this.toastr.success('Signed in successfully.');
         this.router.navigateByUrl(this.authService.resolveReturnUrl(this.returnUrl));
       } else {
-        const message = this.authService.authError === 'network'
-          ? 'Unable to connect to LiftMate. Please try again.'
-          : 'Invalid email or password.';
+        const message =
+          this.authService.authError === 'rate-limited'
+            ? 'Too many login attempts. Please try again in 5 minutes.'
+            : this.authService.authError === 'network'
+              ? 'Unable to connect to LiftMate. Please try again.'
+              : 'Invalid email or password.';
         this.toastr.error(message, 'Login Failed');
       }
     } catch {
       this.toastr.error('Unable to connect to LiftMate. Please try again.', 'Network Error');
     } finally {
       this.loading = false;
+    }
+  }
+
+  async signInAsDemo(role: DemoAccountRole): Promise<void> {
+    if (this.loading || this.demoLoading) return;
+
+    this.demoLoading = role;
+    try {
+      const success = await this.authService.loginAsDemo(role);
+      if (success) {
+        this.toastr.success('Signed in with a demo account.');
+        this.router.navigateByUrl(this.authService.resolveReturnUrl(this.returnUrl));
+        return;
+      }
+
+      const message =
+        this.authService.authError === 'rate-limited'
+          ? 'Too many login attempts. Please try again in 5 minutes.'
+          : this.authService.authError === 'demo-unavailable'
+            ? 'Demo accounts are not available right now.'
+            : this.authService.authError === 'network'
+              ? 'Unable to connect to LiftMate. Please try again.'
+              : 'Unable to sign in with this demo account.';
+      this.toastr.error(message, 'Demo Sign-In Failed');
+    } finally {
+      this.demoLoading = null;
     }
   }
 }

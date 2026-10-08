@@ -1,6 +1,6 @@
 import { Component, ChangeDetectionStrategy, input, output } from '@angular/core';
 import { FormGroup, ReactiveFormsModule } from '@angular/forms';
-import { BookingForm, PaymentMethod, Provider } from '../../carrier.types';
+import { BookingForm, PaymentMethod, Provider, SelectedFile } from '../../carrier.types';
 
 @Component({
   selector: 'app-carrier-summary',
@@ -12,6 +12,8 @@ import { BookingForm, PaymentMethod, Provider } from '../../carrier.types';
 export class CarrierSummaryComponent {
   provider = input.required<Provider>();
   form = input.required<FormGroup<BookingForm>>();
+  selectedFiles = input.required<SelectedFile[]>();
+  imageUploadError = input('');
   paymentMethod = input.required<PaymentMethod>();
   paymentProcessing = input(false);
   paymentSuccess = input(false);

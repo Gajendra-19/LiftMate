@@ -19,11 +19,23 @@ export class CarrierService {
       );
       this.providers = (providers ?? []).map((provider) => ({
         ...provider,
+        avatar: provider.avatar?.trim() || this.getAvatarInitials(provider.name),
         id: String(provider._id ?? provider.id ?? ''),
       }));
     } catch {
       this.providers = [];
     }
+  }
+
+  private getAvatarInitials(name: string): string {
+    const initials = name
+      .trim()
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((part) => part[0].toUpperCase())
+      .join('');
+    return initials || '?';
   }
 
   filterProviders(

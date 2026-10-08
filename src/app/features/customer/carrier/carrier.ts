@@ -1,12 +1,13 @@
 import { HttpClient } from '@angular/common/http';
 import { Component, ChangeDetectionStrategy, computed, signal } from '@angular/core';
-import { FormControl, FormGroup, Validators } from '@angular/forms';
+import { AbstractControl, FormControl, FormGroup, ValidatorFn, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
 import { AuthService } from '../../../core/auth/auth.service';
 import { CarrierService } from './carrier.service';
 import {
   BookingForm,
+  BookingImage,
   BookingStatus,
   BookingView,
   CancellationPolicy,
@@ -24,6 +25,18 @@ import { CarrierStatusComponent } from './components/carrier-status/carrier-stat
 import { CarrierRatingComponent } from './components/carrier-rating/carrier-rating';
 import { environment } from '../../../../environments/environment';
 
+const getLocalDateString = (date = new Date()): string => {
+  const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
+  return localDate.toISOString().slice(0, 10);
+};
+
+const notPastDateValidator: ValidatorFn = (control: AbstractControl) => {
+  const value = control.value;
+  return typeof value === 'string' && value && value < getLocalDateString()
+    ? { pastDate: true }
+    : null;
+};
+
 @Component({
   selector: 'app-carrier',
   imports: [
@@ -39,6 +52,7 @@ import { environment } from '../../../../environments/environment';
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class Carrier {
+  protected readonly minBookingDate = getLocalDateString();
   protected readonly view = signal<BookingView>('request');
   protected readonly requestStep = signal<1 | 2 | 3>(1);
   protected readonly submitted = signal(false);
@@ -50,6 +64,7 @@ export class Carrier {
   protected readonly review = signal('');
   protected readonly feedbackSubmitted = signal(false);
   protected readonly selectedFiles = signal<SelectedFile[]>([]);
+  protected readonly imageUploadError = signal('');
   protected readonly paymentMethod = signal<PaymentMethod>('card');
   protected readonly paymentProcessing = signal(false);
   protected readonly paymentSuccess = signal(false);
@@ -89,7 +104,10 @@ export class Carrier {
       nonNullable: true,
       validators: [Validators.required, Validators.pattern(/\S/), Validators.maxLength(160)],
     }),
-    date: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
+    date: new FormControl('', {
+      nonNullable: true,
+      validators: [Validators.required, notPastDateValidator],
+    }),
     time: new FormControl('', { nonNullable: true, validators: [Validators.required] }),
     duration: new FormControl<number | null>(null, [
       Validators.required,
@@ -168,8 +186,8 @@ export class Carrier {
       return;
     }
 
-    if (step === 2 && this.form.controls.date.value < new Date().toISOString().slice(0, 10)) {
-      this.form.controls.date.setErrors({ pastDate: true });
+    if (step === 2 && this.form.controls.date.value < this.minBookingDate) {
+      this.form.controls.date.updateValueAndValidity();
       this.form.controls.date.markAsTouched();
       return;
     }
@@ -228,6 +246,16 @@ export class Carrier {
 
     this.paymentProcessing.set(true);
     this.paymentSuccess.set(false);
+    this.imageUploadError.set('');
+
+    let images: BookingImage[];
+    try {
+      images = await this.readBookingImages();
+    } catch {
+      this.paymentProcessing.set(false);
+      this.imageUploadError.set('Could not prepare the uploaded photos. Please try again.');
+      return;
+    }
 
     const user = this.authService.user();
     const payload = {
@@ -242,8 +270,12 @@ export class Carrier {
         delivery: this.form.controls.delivery.value,
         date: this.form.controls.date.value,
         time: this.form.controls.time.value,
+        timeZoneOffsetMinutes: new Date(
+          `${this.form.controls.date.value}T${this.form.controls.time.value}:00`,
+        ).getTimezoneOffset(),
         duration: this.form.controls.duration.value,
         preferences: this.form.controls.preferences.value,
+        images,
         totalPrice: provider.price,
         paymentMethod: this.paymentMethod(),
       },
@@ -381,10 +413,38 @@ export class Carrier {
 
   protected addFiles(event: Event): void {
     this.selectedFiles.set(this.carrierService.addFiles(event, this.selectedFiles()));
+    this.imageUploadError.set('');
   }
 
   protected removeFile(index: number): void {
     this.selectedFiles.set(this.carrierService.removeFile(index, this.selectedFiles()));
+    this.imageUploadError.set('');
+  }
+
+  private async readBookingImages(): Promise<BookingImage[]> {
+    const imageFiles = this.selectedFiles().filter(({ file }) => file.type.startsWith('image/'));
+    const totalSize = imageFiles.reduce((total, { file }) => total + file.size, 0);
+    if (totalSize > 10 * 1024 * 1024) {
+      throw new Error('Uploaded photos exceed the booking size limit.');
+    }
+
+    return Promise.all(
+      imageFiles.map(
+        ({ file }) =>
+          new Promise<BookingImage>((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+              if (typeof reader.result !== 'string') {
+                reject(new Error(`Could not read ${file.name}`));
+                return;
+              }
+              resolve({ name: file.name, contentType: file.type, dataUrl: reader.result });
+            };
+            reader.onerror = () => reject(reader.error ?? new Error(`Could not read ${file.name}`));
+            reader.readAsDataURL(file);
+          }),
+      ),
+    );
   }
 
   protected setSort(event: Event): void {

@@ -7,6 +7,8 @@ const cancellationSchema = new mongoose.Schema(
     reason: { type: String, default: '' },
     feePercent: { type: Number, default: 0 },
     feeAmount: { type: Number, default: 0 },
+    refundAmount: { type: Number, default: 0 },
+    initiatedBy: { type: String, enum: ['customer', 'worker', 'system'], default: 'customer' },
     status: { type: String, enum: ['pending', 'approved', 'rejected'], default: 'pending' },
   },
   { timestamps: true },

@@ -74,9 +74,31 @@
         <a href="#" class="forgot-password">Forgot password?</a>
       </div>
 
-      <button type="submit" class="btn-signin" [disabled]="loginForm.invalid">
+      <button type="submit" class="btn-signin" [disabled]="loginForm.invalid || loading || demoLoading">
         Sign In
       </button>
+
+      <section class="d-grid gap-2 my-3" aria-labelledby="demo-access-title">
+        <p id="demo-access-title" class="text-center small text-light mb-1">
+          Explore with a demo account
+        </p>
+        <div class="d-grid gap-2">
+          @for (demoAccount of demoAccounts; track demoAccount.role) {
+            <button
+              type="button"
+              class="btn btn-outline-info"
+              (click)="signInAsDemo(demoAccount.role)"
+              [disabled]="loading || demoLoading !== null"
+            >
+              @if (demoLoading === demoAccount.role) {
+                Signing in...
+              } @else {
+                Continue as {{ demoAccount.label }}
+              }
+            </button>
+          }
+        </div>
+      </section>
 
       <div class="divider">
         <span>or</span>

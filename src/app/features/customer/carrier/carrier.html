@@ -4,6 +4,7 @@
       @case ('request') {
         <app-carrier-request
           [form]="form"
+          [minBookingDate]="minBookingDate"
           [requestStep]="requestStep()"
           [submitted]="submitted()"
           [loading]="loading()"
@@ -49,6 +50,8 @@
           <app-carrier-summary
             [provider]="provider"
             [form]="form"
+            [selectedFiles]="selectedFiles()"
+            [imageUploadError]="imageUploadError()"
             [paymentMethod]="paymentMethod()"
             [paymentProcessing]="paymentProcessing()"
             [paymentSuccess]="paymentSuccess()"
