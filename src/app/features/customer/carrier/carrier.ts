@@ -329,18 +329,18 @@ export class Carrier {
       };
     }
 
-    if (hoursUntil > 12) {
+    if (hoursUntil > 1) {
       return {
         label: '50% cancellation fee',
         feePercent: 50,
-        description: 'Cancel between 12 and 24 hours before pickup and you will be charged 50% of the booking total.',
+        description: 'Cancel between 1 and 24 hours before pickup and you will be charged 50% of the booking total.',
       };
     }
 
     return {
       label: '100% cancellation fee',
       feePercent: 100,
-      description: 'Cancel within 12 hours of pickup or after dispatch, and the full amount is due.',
+      description: 'Cancel within 1 hour of pickup or after dispatch, and the full amount is due.',
     };
   }
 

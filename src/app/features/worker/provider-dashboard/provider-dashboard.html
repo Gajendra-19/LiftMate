@@ -52,7 +52,6 @@
                 class="form-control"
                 name="profileName"
                 [(ngModel)]="profileName"
-                #profileNameControl="ngModel"
                 required
                 minlength="2"
                 placeholder="e.g. Your full name"
@@ -69,7 +68,6 @@
                 type="number"
                 name="profilePhone"
                 [(ngModel)]="profilePhone"
-                #profilePhoneControl="ngModel"
                 required
                 min="1000000000"
                 max="9999999999"
@@ -91,7 +89,6 @@
                   class="form-control"
                   name="teamName"
                   [(ngModel)]="teamName"
-                  #teamNameControl="ngModel"
                   required
                   minlength="2"
                   placeholder="e.g. Mumbai Load Crew"
@@ -110,10 +107,7 @@
                   max="5"
                   name="teamSize"
                   [(ngModel)]="teamSize"
-                  #teamSizeControl="ngModel"
                   required
-                  min="2"
-                  max="5"
                   placeholder="2 to 5"
                 /><small class="form-hint">Your team must have between 2 and 5 LiftMates.</small>
                 @if (profileForm.controls['teamSize']?.invalid && profileForm.controls['teamSize']?.touched) {
@@ -128,7 +122,6 @@
                 class="form-control"
                 name="serviceArea"
                 [(ngModel)]="serviceArea"
-                #serviceAreaControl="ngModel"
                 required
                 minlength="2"
                 placeholder="e.g. Mumbai and Thane"
@@ -144,7 +137,6 @@
                 class="form-control"
                 name="equipment"
                 [(ngModel)]="equipment"
-                #equipmentControl="ngModel"
                 required
                 minlength="2"
                 placeholder="e.g. Hydraulic trolley, straps"
@@ -162,7 +154,6 @@
                 min="1"
                 name="capacity"
                 [(ngModel)]="capacity"
-                #capacityControl="ngModel"
                 required
                 placeholder="e.g. 500"
               />
@@ -179,7 +170,6 @@
                 min="1"
                 name="rate"
                 [(ngModel)]="rate"
-                #rateControl="ngModel"
                 required
                 placeholder="e.g. 650"
               />
@@ -513,9 +503,6 @@
           } @else if (requestState() === 'Rejected') {
             <div class="alert alert-secondary mt-4">
               You rejected this request.
-              <button class="btn btn-link p-0" type="button" (click)="resetRequest()">
-                Show request again
-              </button>
             </div>
           } @else if (requestState() === 'Awaiting Customer Confirmation') {
             <div class="alert alert-warning mt-4">

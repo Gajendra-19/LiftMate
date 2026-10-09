@@ -31,6 +31,7 @@ export interface DashboardSummary {
   requestsSent: number;
   activeJobs: number;
   completedJobs: number;
+  bookings: DashboardBooking[];
   recentActivities: DashboardBooking[];
 }
 
@@ -56,6 +57,7 @@ export function summarizeDashboardBookings(bookings: DashboardBooking[]): Dashbo
     requestsSent,
     activeJobs,
     completedJobs,
+    bookings: ordered,
     recentActivities,
   };
 }

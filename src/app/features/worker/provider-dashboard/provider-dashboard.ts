@@ -18,13 +18,11 @@ interface RequestCard {
   weight: number;
   payment: number;
   paymentStatus: string;
-  worker: string;
   images: BookingImageResponse[];
 }
 
 interface BookingImageResponse {
   name: string;
-  contentType: string;
   dataUrl: string;
 }
 
@@ -42,7 +40,6 @@ interface BookingResponse {
   totalPrice?: number;
   paymentStatus?: string;
   images?: BookingImageResponse[];
-  createdAt?: string;
   status?:
     | 'Request Sent'
     | 'Accepted'
@@ -68,11 +65,8 @@ interface LiftMateProfile {
 }
 
 interface WorkerProfile extends Omit<LiftMateProfile, 'equipment' | 'rate'> {
-  id: string;
-  teamMembers: string[];
   equipment: string[];
   price: number;
-  jobs: number;
   rating: number;
   available: boolean;
 }
@@ -86,17 +80,14 @@ interface WorkerReview {
 }
 
 interface WorkerTeam {
-  id: string;
   name: string;
   inviteCode: string | null;
   isCreator: boolean;
   canManageMembers: boolean;
   members: {
     userId: string;
-    providerId: string;
     name: string;
     role: 'Admin' | 'Member';
-    joinedAt: string;
   }[];
 }
 
@@ -112,7 +103,7 @@ export class ProviderDashboard implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   protected readonly authService = inject(AuthService);
   protected readonly profile = signal<WorkerProfile | null>(null);
-  protected readonly profileRegistered = signal(this.profile() !== null);
+  protected readonly profileRegistered = signal(false);
   protected readonly profileLoading = signal(true);
   protected readonly profileError = signal('');
   protected readonly onboardingStep = signal<'choose' | 'form'>('form');
@@ -126,7 +117,7 @@ export class ProviderDashboard implements OnInit, OnDestroy {
   protected equipment = '';
   protected capacity: number | null = null;
   protected rate: number | null = null;
-  protected teamMode: 'create' | 'join' | 'manage' = 'create';
+  protected teamMode: 'create' | 'join' = 'create';
   protected joinCode = '';
   protected team = signal<WorkerTeam | null>(null);
   protected teamSaving = signal(false);
@@ -157,7 +148,6 @@ export class ProviderDashboard implements OnInit, OnDestroy {
   protected readonly activeStatus = signal<
     'Accepted' | 'On the Way' | 'Arrived' | 'Job Started' | 'Completed'
   >('Accepted');
-  protected readonly earnings = signal(0);
   protected readonly rating = signal(0);
   protected readonly newRequestCount = computed(
     () => this.bookings().filter((booking) => booking.status === 'Request Sent').length,
@@ -339,7 +329,6 @@ export class ProviderDashboard implements OnInit, OnDestroy {
       this.capacity = profile.capacity;
       this.rate = profile.price;
       this.teamNameInput = profile.teamName;
-      this.earnings.set(profile.jobs * profile.price);
       this.rating.set(profile.rating);
       this.available.set(profile.available);
     } catch (error) {
@@ -440,7 +429,6 @@ export class ProviderDashboard implements OnInit, OnDestroy {
               weight: booking.weight || 0,
               payment: booking.totalPrice || 0,
               paymentStatus: booking.paymentStatus || 'Pending',
-              worker: this.profile()?.name || '',
               images: booking.images || [],
             }
           : null,
@@ -508,11 +496,6 @@ export class ProviderDashboard implements OnInit, OnDestroy {
     } catch {
       return false;
     }
-  }
-
-  protected resetRequest(): void {
-    this.requestState.set('New request');
-    this.activeStatus.set('Accepted');
   }
 
   protected registerAsLiftMate(): void {
@@ -586,7 +569,6 @@ export class ProviderDashboard implements OnInit, OnDestroy {
         }),
       );
       this.profile.set({ ...current, ...saved, available: this.available() });
-      this.profileName = saved.name;
       this.settingsName = saved.name;
       this.authService.updateUserName(saved.name);
       this.team.update((team) =>

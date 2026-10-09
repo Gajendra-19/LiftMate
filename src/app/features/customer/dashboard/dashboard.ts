@@ -36,6 +36,7 @@ export class Dashboard implements OnDestroy {
     requestsSent: 0,
     activeJobs: 0,
     completedJobs: 0,
+    bookings: [],
     recentActivities: [],
   });
   protected readonly selectedBooking = signal<DashboardBooking | null>(null);
@@ -97,6 +98,7 @@ export class Dashboard implements OnDestroy {
         requestsSent: 0,
         activeJobs: 0,
         completedJobs: 0,
+        bookings: [],
         recentActivities: [],
       });
       return;
@@ -117,6 +119,7 @@ export class Dashboard implements OnDestroy {
         requestsSent: 0,
         activeJobs: 0,
         completedJobs: 0,
+        bookings: [],
         recentActivities: [],
       });
     }
@@ -177,7 +180,7 @@ export class Dashboard implements OnDestroy {
         ? 100
         : hoursUntilPickup > 24
           ? 0
-          : hoursUntilPickup > 12
+          : hoursUntilPickup > 1
             ? 50
             : 100;
     }

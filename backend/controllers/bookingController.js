@@ -54,7 +54,7 @@ const getCancellationFeePercent = (booking) => {
   const hoursUntilPickup = (pickupAt - Date.now()) / 3_600_000;
   if (!Number.isFinite(pickupAt)) return 100;
   if (hoursUntilPickup > 24) return 0;
-  if (hoursUntilPickup > 12) return 50;
+  if (hoursUntilPickup > 1) return 50;
   return 100;
 };
 

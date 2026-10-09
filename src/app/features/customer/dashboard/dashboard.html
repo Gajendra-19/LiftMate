@@ -99,19 +99,19 @@
         </div>
         <div class="dashboard-grid">
           <article class="metric-card">
-            <span>Requests sent</span>
+            <span>Pending bookings</span>
             <strong>{{ dashboardSummary().requestsSent }}</strong>
-            <small>Waiting for a worker to respond</small>
+            <small>Waiting for a worker to accept</small>
           </article>
           <article class="metric-card">
-            <span>Jobs in progress</span>
+            <span>Active bookings</span>
             <strong>{{ dashboardSummary().activeJobs }}</strong>
-            <small>Accepted or awaiting your confirmation</small>
+            <small>Accepted or currently underway</small>
           </article>
           <article class="metric-card">
-            <span>Completed jobs</span>
+            <span>Completed bookings</span>
             <strong>{{ dashboardSummary().completedJobs }}</strong>
-            <small>Confirmed by you</small>
+            <small>Finished and confirmed</small>
           </article>
         </div>
         <section class="recent-panel">
@@ -241,18 +241,41 @@
           </button>
         </div>
         <section class="recent-panel">
-          @for (activity of dashboardSummary().recentActivities; track activity._id) {
-            <button class="activity-row activity-button" type="button" (click)="selectBooking(activity)">
-              <span class="activity-icon material-icons">check_circle</span>
-              <div>
-                <strong>{{ activity.category || 'LiftMate service' }}</strong>
-                <small>
-                  {{ activity.providerId?.name || 'LiftMate team' }} · {{ activity.status }} ·
-                  {{ formatDate(activity.bookingDate || activity.createdAt) }}
-                </small>
-              </div>
-              <span class="activity-price">{{ formatPrice(activity.totalPrice || 0) }}</span>
-            </button>
+          @for (activity of dashboardSummary().bookings; track activity._id) {
+            <div class="border-top">
+              <button class="activity-row activity-button border-top-0" type="button" (click)="selectBooking(activity)">
+                <span class="activity-icon material-icons">check_circle</span>
+                <div>
+                  <strong>{{ activity.category || 'LiftMate service' }}</strong>
+                  <small>
+                    {{ activity.providerId?.name || 'LiftMate team' }} · {{ activity.status }} ·
+                    {{ formatDate(activity.bookingDate || activity.createdAt) }}
+                  </small>
+                </div>
+                <span class="activity-price">{{ formatPrice(activity.totalPrice || 0) }}</span>
+              </button>
+              @if (canCancelBooking(activity)) {
+                @let cancellation = getCancellationDetails(activity);
+                <div class="d-flex align-items-center justify-content-between gap-3 px-4 pb-3">
+                  <small class="text-secondary">
+                    Cancellation fee: {{ cancellation.feePercent }}% · estimated refund:
+                    {{ formatPrice(cancellation.refundAmount) }}
+                  </small>
+                  <button
+                    class="btn btn-sm btn-outline-danger"
+                    type="button"
+                    [disabled]="bookingActionId() !== null"
+                    (click)="cancelBooking(activity)"
+                  >
+                    {{ bookingActionId() === activity._id ? 'Processing...' : 'Cancel booking' }}
+                  </button>
+                </div>
+              } @else if (activity.status === 'Cancelled') {
+                <p class="text-secondary px-4 pb-3 mb-0">
+                  Cancelled · recorded refund: {{ formatPrice(activity.paymentRefundedAmount || 0) }}
+                </p>
+              }
+            </div>
           } @empty {
             <div class="activity-row">
               <span class="activity-icon material-icons">info</span>
@@ -263,6 +286,12 @@
             </div>
           }
         </section>
+        @if (bookingActionError()) {
+          <p class="text-danger mt-3 mb-0" role="alert">{{ bookingActionError() }}</p>
+        }
+        @if (bookingActionMessage()) {
+          <p class="text-success mt-3 mb-0" role="status">{{ bookingActionMessage() }}</p>
+        }
         @if (selectedBooking(); as booking) {
           <section class="booking-summary-panel" aria-label="Request summary">
             <div class="d-flex justify-content-between align-items-start gap-3">
@@ -373,14 +402,6 @@
           @if (profileMessage()) {
             <small class="profile-message">{{ profileMessage() }}</small>
           }
-          <label class="form-check-label">
-            <input class="form-check-input" type="checkbox" checked />
-            Send booking updates by email
-          </label>
-          <label class="form-check-label">
-            <input class="form-check-input" type="checkbox" checked />
-            Send status updates by SMS
-          </label>
         </section>
       }
     }
